@@ -5,17 +5,17 @@
 #include <iostream>
 #include <string>
 
-int main()
+auto main() -> int
 {
   using namespace std::string_literals;
 
   static const auto fwd{"forward "s};
   static const auto down{"down "s};
-  static const auto up{"up "s};
+  static const auto up{"up "s}; // NOLINT(readability-identifier-length)
 
   std::string line;
-  unsigned long horiz{0};
-  unsigned long depth{0};
+  std::uint64_t horiz{0};
+  std::uint64_t depth{0};
   while (std::getline(std::cin, line)) {
     if (line.size() > fwd.size() && line.substr(0, fwd.size()) == fwd) {
       horiz += std::stoul(line.substr(fwd.size()));

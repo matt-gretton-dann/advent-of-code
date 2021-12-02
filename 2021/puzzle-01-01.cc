@@ -7,9 +7,9 @@
 #include <limits>
 #include <string>
 
-int main(void)
+auto main() -> int
 {
-  unsigned long prev{std::numeric_limits<unsigned long>::max()};
+  auto prev{std::numeric_limits<std::uint64_t>::max()};
   unsigned incrs{0};
   std::string line;
   while (std::getline(std::cin, line)) {
