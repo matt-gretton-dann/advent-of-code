@@ -1,11 +1,12 @@
 # C++ Solutions to Advent of Code
 
-This repository contains solutions to various years of the [Advent of Code](https://adventofcode.com)
-puzzles.  All solutions are written in C++.  The solutions aren't designed to be nice or
-pretty.  Instead, I am using it as an experiment in understanding how I approach solving
-problems.
+This repository contains solutions to various years of
+the [Advent of Code](https://adventofcode.com)
+puzzles. All solutions are written in C++. The solutions aren't designed to be nice or pretty.
+Instead, I am using it as an experiment in understanding how I approach solving problems.
 
-The solutions are authored by Matthew Gretton-Dann, and Copyright 2020-2021, Matthew Gretton-Dann.  Licensed under Apache 2.0 - see [license](./LICENSE).
+The solutions are authored by Matthew Gretton-Dann, and Copyright 2020-2021, Matthew Gretton-Dann.
+Licensed under Apache 2.0 - see [license](./LICENSE).
 
 ## Getting the sources
 
@@ -19,14 +20,14 @@ git clone https://github.com/matt-gretton-dann/advent-of-code/
 
 The following is required to build the puzzles:
 
- * CMake
- * C++20 compiler
- * OpenSSL headers.
+* CMake
+* C++20 compiler
+* OpenSSL headers.
 
 ## Running the Puzzles
 
-There is a driver script (`./driver.sh`) in the root of the checkout.  It will build and run specific tests.  Example
-use is as follows:
+There is a driver script (`./driver.sh`) in the root of the checkout. It will build and run specific
+tests. Example use is as follows:
 
 ```sh
 YEAR=2020 # Year of puzzle to run
@@ -45,7 +46,10 @@ cmake -Bbuild -S.
 cmake --build build
 ```
 
-Note that some of the puzzles require OpenSSL for the MD5 implementation.  On macOS this also requires you to pass an appropariate value for `OPENSSL_ROOT_DIR` to cmake.  On x86 this is `-DOPENSSL_ROOT_DIR=/usr/local/opt/openssl` and on AArch64 this is `-DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl`.
+**Note**: Some puzzles require OpenSSL for the MD5 implementation. On macOS this requires you to
+pass an appropriate value for `OPENSSL_ROOT_DIR` to `cmake`. If using `homebrew` then x86 this
+is `-DOPENSSL_ROOT_DIR=/usr/local/opt/openssl` and on AArch64 this
+is `-DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl`.
 
 ## Sources
 
@@ -53,19 +57,20 @@ All code is written in C++.
 
 ### Directory Layout
 
-Each year of puzzles is in a self-contained directory `YEAR`.  
+Each year of puzzles is in a self-contained directory `YEAR`.
 
 Within the directory there are the following files:
 
- * `puzzle-DAY-NUMBER.cc`.  The source for puzzle NUMBER on day DAY in the year.
- * `driver-DAY-NUMBER.sh`.  If present this is used as the driver to run that puzzle.
- * `puzzle-DAY-NUMBER.CMakeLists.txt`.  If present this is included by `CMakeLists.txt`.  The variable `${puzzle_name}`
-   contains the name of the puzzle target.  Some puzzles use this to depend on OpenSSL. 
+* `puzzle-DAY-NUMBER.cc`. The source for puzzle NUMBER on DAY in the year.
+* `driver-DAY-NUMBER.sh`. If present this is used as the driver to run that puzzle.
+* `puzzle-DAY-NUMBER.CMakeLists.txt`. If present this is included by `CMakeLists.txt`. The
+  variable `${puzzle_name}`
+  contains the name of the puzzle target. Some puzzles use this to depend on OpenSSL.
 
 ### Command Line Interface
 
 The executable command line interface should just take the input in on standard-input and print its
 result on standard-output.
 
-If this is not possible the script `driver-DAY-NUMBER.sh` within the year directory should be provided.  It should take
-two arguments - the executable to run and the input file to use.
+If this is not possible the script `driver-DAY-NUMBER.sh` within the year directory should be
+provided. It should take two arguments - the executable to run and the input file to use.

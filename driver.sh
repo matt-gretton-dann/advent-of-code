@@ -44,8 +44,8 @@ fi
 # Rebuild the executable we want to run.
 if [ ! -d "build" ]; then
     opts=
-    if [ "$(uname -s)" == "Darwin" ]; then
-      if [ "$(uname -m)" == "arm64" ]; then
+    if [ "$(uname -s)" = "Darwin" ]; then
+      if [ "$(uname -m)" = "arm64" ]; then
         opts="-DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl"
       else
         opts="-DOPENSSL_ROOT_DIR=/usr/local/opt/openssl"
