@@ -9,7 +9,8 @@
 //  >=3 vowels
 //  At least one double letter
 //  No instances of 'ab', 'cd', 'pq', or 'xy'.
-bool is_nice(std::string const &s) noexcept {
+bool is_nice(std::string const& s) noexcept
+{
   unsigned vowel_count = 0;
   bool repeated = false;
   char last = '\0';
@@ -22,8 +23,8 @@ bool is_nice(std::string const &s) noexcept {
     if (c == last) {
       repeated = true;
     }
-    if ((last == 'a' && c == 'b') || (last == 'c' && c == 'd') ||
-        (last == 'p' && c == 'q') || (last == 'x' && c == 'y')) {
+    if ((last == 'a' && c == 'b') || (last == 'c' && c == 'd') || (last == 'p' && c == 'q') ||
+        (last == 'x' && c == 'y')) {
       return false;
     }
     last = c;
@@ -32,7 +33,8 @@ bool is_nice(std::string const &s) noexcept {
   return repeated && vowel_count >= 3;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   unsigned nice_strings;
   for (std::string line; std::getline(std::cin, line);) {
     nice_strings += is_nice(line);

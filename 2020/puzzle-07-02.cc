@@ -13,8 +13,10 @@ using Edge = std::pair<Node, Node>;
 using Weight = unsigned;
 using EdgeWeights = std::map<Edge, Weight>;
 
-struct BagGraph {
-  void add_edges(std::string const &s) {
+struct BagGraph
+{
+  void add_edges(std::string const& s)
+  {
     static const auto prefix_re = std::regex("([a-z ]+) bags? contain ");
     static const auto suffix_re = std::regex("(\\d)+ ([a-z ]+) bags?[,.]\\s*");
     static const auto empty_str = std::string("no other bags.");
@@ -31,7 +33,8 @@ struct BagGraph {
       if (suffix == empty_str) {
         std::cout << n1 << " -> none: <empty>\n";
         suffix.clear();
-      } else {
+      }
+      else {
         std::smatch suffix_m;
         if (!std::regex_search(suffix, suffix_m, suffix_re)) {
           std::cout << "Failed to match: " << suffix << "\n";
@@ -48,17 +51,19 @@ struct BagGraph {
     }
   }
 
-  Weight num_contained(Node const &n) {
+  Weight num_contained(Node const& n)
+  {
     // Get the number of bags including the node we've been asked for so the
     // result is 1 less than the internal result
     return num_contained1(n) - 1;
   }
 
 private:
-  Weight num_contained1(Node const &n) {
+  Weight num_contained1(Node const& n)
+  {
     Weight w = 0;
     bool contains_something = false;
-    for (auto const &kv : edges_) {
+    for (auto const& kv : edges_) {
       if (kv.first.first == n) {
         w += kv.second * num_contained1(kv.first.second);
         contains_something = true;
@@ -70,7 +75,8 @@ private:
   EdgeWeights edges_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   BagGraph bg;
   for (std::string line; std::getline(std::cin, line);) {
     bg.add_edges(line);

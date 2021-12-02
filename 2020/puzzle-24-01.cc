@@ -14,8 +14,10 @@ using Coord = long;
 using Position = std::pair<Coord, Coord>;
 using Tiles = std::set<Position>;
 
-struct Tiler {
-  void flip_tile(std::string const &s) {
+struct Tiler
+{
+  void flip_tile(std::string const& s)
+  {
     Coord x = 0;
     Coord y = 0;
     auto it = s.begin();
@@ -30,9 +32,11 @@ struct Tiler {
 
       if (*it == 'e') {
         x += dx;
-      } else if (*it == 'w') {
+      }
+      else if (*it == 'w') {
         x -= dx;
-      } else {
+      }
+      else {
         assert(false);
       }
       ++it;
@@ -51,7 +55,8 @@ private:
   Tiles black_tiles_;
 };
 
-int main(void) {
+int main(void)
+{
   Tiler tiler;
   std::string line;
   while (std::getline(std::cin, line)) {

@@ -11,24 +11,27 @@
 #include <vector>
 
 using Value = unsigned long;
-struct Cup {
+struct Cup
+{
   Cup() : value_(0), next_(nullptr) {}
 
   Value value() const { return value_; }
   void value(Value v) { value_ = v; }
-  Cup *next() const { return next_; }
-  void next(Cup *n) { next_ = n; }
+  Cup* next() const { return next_; }
+  void next(Cup* n) { next_ = n; }
 
 private:
   Value value_;
-  Cup *next_;
+  Cup* next_;
 };
 
-struct Cups {
+struct Cups
+{
   static constexpr std::size_t num_cups_ = 1000000;
   static constexpr std::size_t num_moves_ = 10000000;
 
-  Cups(std::string const &s) : cups_(new Cup[num_cups_]), current_(cups_) {
+  Cups(std::string const& s) : cups_(new Cup[num_cups_]), current_(cups_)
+  {
     std::size_t idx = 0;
     for (auto c : s) {
       cups_[idx].value(c - '0');
@@ -47,17 +50,18 @@ struct Cups {
 
   ~Cups() { delete[] cups_; }
 
-  void play() {
+  void play()
+  {
     for (std::size_t move = 0; move < num_moves_; ++move) {
       if (move % 1000 == 0) {
-        std::cout << "A" << move << " " << current_ - cups_ << " "
-                  << current_->value() << " " << result() << "\n";
+        std::cout << "A" << move << " " << current_ - cups_ << " " << current_->value() << " "
+                  << result() << "\n";
         // print();
       }
 
       // Remove first three after current.
-      Cup *rb = current_->next();
-      Cup *re = rb->next()->next();
+      Cup* rb = current_->next();
+      Cup* re = rb->next()->next();
       current_->next(re->next());
       re->next(nullptr);
 
@@ -74,14 +78,15 @@ struct Cups {
       // Where do we insert?  Note that we use the hack that all the values are
       // actually in an index and we know what the value is (roughly) based on
       // the index.
-      Cup *ins = nullptr;
+      Cup* ins = nullptr;
       if (vm1 < 10) {
         ins = cups_;
         while (ins->value() != vm1) {
           assert(ins != cups_ + 10);
           ++ins;
         }
-      } else {
+      }
+      else {
         ins = cups_ + vm1 - 1;
       }
 
@@ -96,8 +101,9 @@ struct Cups {
     }
   }
 
-  Value result() const {
-    Cup *one = cups_;
+  Value result() const
+  {
+    Cup* one = cups_;
     while (one->value() != 1) {
       ++one;
       assert(one != cups_ + num_cups_);
@@ -106,9 +112,10 @@ struct Cups {
     return one->next()->value() * one->next()->next()->value();
   }
 
-  void print() const {
+  void print() const
+  {
     std::cout << "State:";
-    Cup const *c = current_;
+    Cup const* c = current_;
     do {
       std::cout << " " << c->value();
       c = c->next();
@@ -117,11 +124,12 @@ struct Cups {
   }
 
 private:
-  Cup *cups_;
-  Cup *current_;
+  Cup* cups_;
+  Cup* current_;
 };
 
-int main(void) {
+int main(void)
+{
   std::string line;
   std::getline(std::cin, line);
   Cups cups(line);

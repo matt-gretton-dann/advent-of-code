@@ -6,7 +6,8 @@
 using StringSet = std::set<std::string>;
 
 namespace {
-StringSet parse_line(std::string const &str) {
+StringSet parse_line(std::string const& str)
+{
   StringSet result;
   std::string::size_type pos = 0;
 
@@ -28,20 +29,21 @@ StringSet parse_line(std::string const &str) {
 const StringSet mandatory{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"};
 const StringSet optional{"cid"};
 
-bool is_valid_passport(StringSet const &mandatory_found) {
+bool is_valid_passport(StringSet const& mandatory_found)
+{
   return mandatory_found.size() == mandatory.size();
 }
-} // namespace
+}  // namespace
 
-int main(int argc, char **argv) {
-
+int main(int argc, char** argv)
+{
   StringSet mandatory_found;
   StringSet optional_found;
   unsigned valid = 0;
   for (std::string line; std::getline(std::cin, line);) {
     if (!line.empty()) {
       auto keys = parse_line(line);
-      for (auto const &key : keys) {
+      for (auto const& key : keys) {
         std::cout << "Key " << key << " is ";
         if (mandatory.find(key) != mandatory.end()) {
           auto [it, success] = mandatory_found.insert(key);
@@ -49,18 +51,21 @@ int main(int argc, char **argv) {
           if (!success) {
             std::cout << " (duplicate)";
           }
-        } else if (optional.find(key) != optional.end()) {
+        }
+        else if (optional.find(key) != optional.end()) {
           auto [it, success] = optional_found.insert(key);
           std::cout << "optional";
           if (!success) {
             std::cout << " (duplicate)";
           }
-        } else {
+        }
+        else {
           std::cout << "unexpected";
         }
         std::cout << "\n";
       }
-    } else {
+    }
+    else {
       valid += is_valid_passport(mandatory_found);
       mandatory_found.clear();
       optional_found.clear();

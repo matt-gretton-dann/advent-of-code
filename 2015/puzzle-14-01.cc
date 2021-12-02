@@ -11,7 +11,8 @@
 
 using Distance = unsigned long;
 
-Distance distance(std::string const &s, unsigned t) {
+Distance distance(std::string const& s, unsigned t)
+{
   static const std::regex re("(\\w+) can fly (\\d+) km/s for (\\d+) seconds?, "
                              "but then must rest for (\\d+) seconds?.");
   std::smatch m;
@@ -32,15 +33,17 @@ Distance distance(std::string const &s, unsigned t) {
     t = std::min(t, fly_time);
     result += t * fly_speed;
 
-    std::cout << m.str(1) << "(" << fly_speed << ", " << fly_time << ", "
-              << rest_time << ") = " << result << "\n";
+    std::cout << m.str(1) << "(" << fly_speed << ", " << fly_time << ", " << rest_time
+              << ") = " << result << "\n";
     return result;
-  } else {
+  }
+  else {
     assert(false);
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Distance max_d = 0;
   for (std::string line; std::getline(std::cin, line);) {
     max_d = std::max(max_d, distance(line, 2503));

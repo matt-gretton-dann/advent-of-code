@@ -9,7 +9,8 @@
 
 using Jolt = unsigned long;
 
-Jolt count_valid_combinations(std::vector<Jolt> const &jolts) {
+Jolt count_valid_combinations(std::vector<Jolt> const& jolts)
+{
   std::vector<Jolt> valid(jolts.size(), 0);
   valid[jolts.size() - 1] = 1;
   std::size_t i = jolts.size() - 1;
@@ -27,7 +28,8 @@ Jolt count_valid_combinations(std::vector<Jolt> const &jolts) {
   return valid[0];
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::vector<Jolt> jolts;
   for (std::string line; std::getline(std::cin, line);) {
     jolts.push_back(std::stoul(line));

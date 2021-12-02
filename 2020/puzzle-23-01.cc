@@ -10,12 +10,12 @@
 #include <tuple>
 #include <vector>
 
-struct Cups {
-  Cups(std::string const &s) : s_(s) {
-    std::cout << "Initial state: " << s_ << "\n";
-  }
+struct Cups
+{
+  Cups(std::string const& s) : s_(s) { std::cout << "Initial state: " << s_ << "\n"; }
 
-  void play(unsigned moves) {
+  void play(unsigned moves)
+  {
     // We assume the current value is always at index 0.
     // So the values to remove are in offsets [1, 4).
     while (moves-- > 0) {
@@ -27,13 +27,13 @@ struct Cups {
         d = d == '1' ? '9' : d - 1;
       }
 
-      s_ = s_.substr(4, dest - 3) + s_.substr(1, 3) + s_.substr(dest + 1) +
-           s_[0];
+      s_ = s_.substr(4, dest - 3) + s_.substr(1, 3) + s_.substr(dest + 1) + s_[0];
       std::cout << moves << ": " << s_ << "\n";
     }
   }
 
-  std::string result() const {
+  std::string result() const
+  {
     auto split = s_.find('1');
     return s_.substr(split + 1) + s_.substr(0, split);
   }
@@ -42,7 +42,8 @@ private:
   std::string s_;
 };
 
-int main(void) {
+int main(void)
+{
   std::string line;
   std::getline(std::cin, line);
   Cups cups(line);

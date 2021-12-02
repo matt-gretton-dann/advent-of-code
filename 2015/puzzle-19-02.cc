@@ -13,10 +13,11 @@
 #include <unordered_set>
 #include <variant>
 
-template <typename Map>
-std::size_t dedup(Map const &replacements, std::string &molecule) {
+template<typename Map>
+std::size_t dedup(Map const& replacements, std::string& molecule)
+{
   std::size_t steps = 0;
-  for (auto const &kv : replacements) {
+  for (auto const& kv : replacements) {
     if (kv.first != kv.second + kv.second) {
       continue;
     }
@@ -24,8 +25,7 @@ std::size_t dedup(Map const &replacements, std::string &molecule) {
     do {
       pos = molecule.find(kv.first);
       if (pos != std::string::npos) {
-        molecule = molecule.substr(0, pos) + kv.second +
-                   molecule.substr(pos + kv.first.size());
+        molecule = molecule.substr(0, pos) + kv.second + molecule.substr(pos + kv.first.size());
         ++steps;
       }
     } while (pos != std::string::npos);
@@ -143,21 +143,22 @@ find_molecule(std::unordered_map<std::string, std::string> const &replacements,
 }
 #endif
 
-template <typename Map>
-bool is_good_replacement(Map const &replacements, std::string const &nm,
-                         std::size_t pos, std::size_t replace_len) {
-  for (auto const &kv : replacements) {
+template<typename Map>
+bool is_good_replacement(Map const& replacements, std::string const& nm, std::size_t pos,
+                         std::size_t replace_len)
+{
+  for (auto const& kv : replacements) {
     auto left = std::max(kv.first.size(), pos) - kv.first.size();
-    if (nm.substr(left, kv.first.size() * 2 + replace_len).find(kv.first) !=
-        std::string::npos) {
+    if (nm.substr(left, kv.first.size() * 2 + replace_len).find(kv.first) != std::string::npos) {
       return true;
     }
   }
   return false;
 }
 
-template <typename Map>
-std::size_t find_molecule(Map &replacements, std::string const &molecule) {
+template<typename Map>
+std::size_t find_molecule(Map& replacements, std::string const& molecule)
+{
   std::random_device rd;
   std::mt19937 g(rd());
   while (true) {
@@ -167,7 +168,7 @@ std::size_t find_molecule(Map &replacements, std::string const &molecule) {
     std::size_t steps = 0;
     do {
       changed = false;
-      for (auto const &kv : replacements) {
+      for (auto const& kv : replacements) {
         auto pos = m.find(kv.first);
         if (pos != std::string::npos) {
           m = m.substr(0, pos) + kv.second + m.substr(pos + kv.first.length());
@@ -185,17 +186,20 @@ std::size_t find_molecule(Map &replacements, std::string const &molecule) {
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::vector<std::pair<std::string, std::string>> replacements;
   bool collecting_replacements = true;
   std::string line;
   while (std::getline(std::cin, line)) {
     if (line.empty()) {
       collecting_replacements = false;
-    } else if (collecting_replacements) {
+    }
+    else if (collecting_replacements) {
       auto sep = line.find(" => ");
       replacements.push_back({line.substr(sep + 4), line.substr(0, sep)});
-    } else {
+    }
+    else {
       std::cout << line << "\n";
       auto time = find_molecule(replacements, line);
       std::cout << "Solution: " << time << "\n";

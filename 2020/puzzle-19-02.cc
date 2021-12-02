@@ -9,8 +9,10 @@
 #include <string>
 #include <tuple>
 
-struct Matcher {
-  void add_rule(std::string const &s) {
+struct Matcher
+{
+  void add_rule(std::string const& s)
+  {
     std::size_t len = 0;
     unsigned long id = std::stoul(s, &len);
     assert(s[len] == ':');
@@ -24,12 +26,14 @@ struct Matcher {
     rules_[id] = s.substr(len);
   }
 
-  void calculate_regex() {
+  void calculate_regex()
+  {
     re42_ = expand_rule(42);
     re31_ = expand_rule(31);
   }
 
-  bool does_match(std::string const &s) const {
+  bool does_match(std::string const& s) const
+  {
     std::smatch m;
     std::string begin = "^" + re42_ + re42_;
     unsigned repeats = 1;
@@ -50,19 +54,22 @@ struct Matcher {
   }
 
 private:
-  std::string expand_rule(std::size_t id) {
+  std::string expand_rule(std::size_t id)
+  {
     std::string re;
-    std::string const &rule = rules_[id];
+    std::string const& rule = rules_[id];
     std::size_t pos = 0;
     bool needs_brackets = false;
     while (pos < rule.size()) {
       if (rule[pos] == ' ') {
         ++pos;
-      } else if (rule[pos] == '|') {
+      }
+      else if (rule[pos] == '|') {
         re += "|";
         needs_brackets = true;
         ++pos;
-      } else if (rule[pos] == '"') {
+      }
+      else if (rule[pos] == '"') {
         ++pos;
         while (pos < rule.size() && rule[pos] != '"') {
           re += rule[pos];
@@ -71,12 +78,14 @@ private:
         assert(pos < rule.size());
         assert(rule[pos] == '"');
         ++pos;
-      } else if (std::isdigit(rule[pos])) {
+      }
+      else if (std::isdigit(rule[pos])) {
         std::size_t len = 0;
         std::size_t subid = std::stoul(rule.substr(pos), &len);
         pos += len;
         re += expand_rule(subid);
-      } else {
+      }
+      else {
         assert(false);
       }
     }
@@ -93,7 +102,8 @@ private:
   std::string re31_;
 };
 
-int main(void) {
+int main(void)
+{
   std::string line;
   Matcher matcher;
   bool adding_rules = true;
@@ -102,9 +112,11 @@ int main(void) {
     if (line.empty()) {
       adding_rules = false;
       matcher.calculate_regex();
-    } else if (adding_rules) {
+    }
+    else if (adding_rules) {
       matcher.add_rule(line);
-    } else {
+    }
+    else {
       bool m = matcher.does_match(line);
       std::cout << line << ": does " << (m ? "" : "not ") << "match\n";
       matches += m;

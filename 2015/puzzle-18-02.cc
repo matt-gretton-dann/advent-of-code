@@ -10,9 +10,10 @@
 #include <string>
 #include <variant>
 
-struct ConwayState {
-  ConwayState(std::size_t width, std::string const &s)
-      : width_(width), state_(width_ * width_, 0) {
+struct ConwayState
+{
+  ConwayState(std::size_t width, std::string const& s) : width_(width), state_(width_ * width_, 0)
+  {
     assert(s.size() == width_ * width_);
 
     flip(0);
@@ -27,11 +28,11 @@ struct ConwayState {
     }
   }
 
-  ConwayState next_state() const {
+  ConwayState next_state() const
+  {
     ConwayState next(*this);
     for (std::size_t i = 0; i < state_.size(); ++i) {
-      if (i == 0 || i == width_ - 1 || i == width_ * (width_ - 1) ||
-          i == width_ * width_ - 1) {
+      if (i == 0 || i == width_ - 1 || i == width_ * (width_ - 1) || i == width_ * width_ - 1) {
         continue;
       }
       if (state_[i] == (2 | active_) || state_[i] == (3 | active_)) {
@@ -45,23 +46,22 @@ struct ConwayState {
     return next;
   }
 
-  std::size_t num_active() const {
-    return std::accumulate(state_.begin(), state_.end(), std::size_t(0),
-                           [](std::size_t current, unsigned char info) {
-                             return current + ((info & active_) != 0);
-                           });
+  std::size_t num_active() const
+  {
+    return std::accumulate(
+      state_.begin(), state_.end(), std::size_t(0),
+      [](std::size_t current, unsigned char info) { return current + ((info & active_) != 0); });
   }
 
 private:
-  void flip(std::size_t idx) {
+  void flip(std::size_t idx)
+  {
     state_[idx] = state_[idx] ^ active_;
     int delta = ((state_[idx] & active_) == active_) ? 1 : -1;
     std::size_t row = idx / width_;
     std::size_t col = idx % width_;
-    for (std::size_t r = std::max(std::size_t(1), row) - 1;
-         r < std::min(width_, row + 2); ++r) {
-      for (std::size_t c = std::max(std::size_t(1), col) - 1;
-           c < std::min(width_, col + 2); ++c) {
+    for (std::size_t r = std::max(std::size_t(1), row) - 1; r < std::min(width_, row + 2); ++r) {
+      for (std::size_t c = std::max(std::size_t(1), col) - 1; c < std::min(width_, col + 2); ++c) {
         if (r == row && c == col) {
           continue;
         }
@@ -74,10 +74,11 @@ private:
   std::vector<unsigned char> state_;
 
   static constexpr unsigned char active_ = 0x80;
-  friend std::ostream &operator<<(std::ostream &os, ConwayState const &state);
+  friend std::ostream& operator<<(std::ostream& os, ConwayState const& state);
 };
 
-std::ostream &operator<<(std::ostream &os, ConwayState const &state) {
+std::ostream& operator<<(std::ostream& os, ConwayState const& state)
+{
   std::size_t c = 0;
   for (auto s : state.state_) {
     os << (s & ConwayState::active_ ? '#' : '.');
@@ -91,7 +92,8 @@ std::ostream &operator<<(std::ostream &os, ConwayState const &state) {
   return os;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::string line;
   std::size_t width = 0;
   std::string init;

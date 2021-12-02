@@ -3,21 +3,22 @@
 //
 
 #include <cstdlib>
+#include <iostream>
 #include <limits>
 #include <string>
-#include <iostream>
 
-int main(void) {
-    unsigned long prev{std::numeric_limits<unsigned long>::max()};
-    unsigned incrs{0};
-    std::string line;
-    while (std::getline(std::cin, line)) {
-        auto current{std::stoul(line)};
-        if (current > prev) {
-            ++incrs;
-        }
-        prev = current;
+int main(void)
+{
+  unsigned long prev{std::numeric_limits<unsigned long>::max()};
+  unsigned incrs{0};
+  std::string line;
+  while (std::getline(std::cin, line)) {
+    auto current{std::stoul(line)};
+    if (current > prev) {
+      ++incrs;
     }
-    std::cout << "Number of increments: " << incrs << '\n';
-    return EXIT_SUCCESS;
+    prev = current;
+  }
+  std::cout << "Number of increments: " << incrs << '\n';
+  return EXIT_SUCCESS;
 }

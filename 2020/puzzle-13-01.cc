@@ -10,7 +10,8 @@
 
 using Time = unsigned long;
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Time arrival;
   Time closest = ULONG_MAX;
   Time closest_id = 0;
@@ -36,8 +37,7 @@ int main(int argc, char **argv) {
     if (next_departure_in == depart) {
       next_departure_in = 0;
     }
-    std::cout << "Bus #" << depart
-              << " previous departure: " << (arrival / depart) * depart
+    std::cout << "Bus #" << depart << " previous departure: " << (arrival / depart) * depart
               << ", next departure in: " << next_departure_in << "\n";
     if (next_departure_in < closest) {
       closest = next_departure_in;
@@ -45,8 +45,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  std::cout << "Next departure # " << closest_id << " in " << closest
-            << " minutes.\n";
+  std::cout << "Next departure # " << closest_id << " in " << closest << " minutes.\n";
   std::cout << "Result = " << closest * closest_id << "\n";
   return 0;
 }

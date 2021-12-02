@@ -9,13 +9,15 @@
 #include <string>
 #include <tuple>
 
-struct ConwayCubeState {
+struct ConwayCubeState
+{
   using Point = std::tuple<int, int, int>;
   using PointSet = std::set<Point>;
   using NeighbourMap = std::map<Point, unsigned>;
 
   ConwayCubeState() : next_row_(0) {}
-  void add_row(std::string const &s) {
+  void add_row(std::string const& s)
+  {
     for (int x = 0; x < s.size(); ++x) {
       if (s[x] == '#') {
         set_point(x, next_row_, 0);
@@ -24,13 +26,15 @@ struct ConwayCubeState {
     ++next_row_;
   }
 
-  ConwayCubeState next_state() const {
+  ConwayCubeState next_state() const
+  {
     ConwayCubeState next;
-    for (auto const &n : neighbours_) {
+    for (auto const& n : neighbours_) {
       bool active = points_.find(n.first) != points_.end();
       if (active && (n.second == 2 || n.second == 3)) {
         next.set_point(n.first);
-      } else if (!active && n.second == 3) {
+      }
+      else if (!active && n.second == 3) {
         next.set_point(n.first);
       }
     }
@@ -41,11 +45,10 @@ struct ConwayCubeState {
   auto active() const { return points_.size(); }
 
 private:
-  void set_point(Point const &pt) {
-    set_point(std::get<0>(pt), std::get<1>(pt), std::get<2>(pt));
-  }
+  void set_point(Point const& pt) { set_point(std::get<0>(pt), std::get<1>(pt), std::get<2>(pt)); }
 
-  void set_point(int px, int py, int pz) {
+  void set_point(int px, int py, int pz)
+  {
     points_.insert({px, py, pz});
 
     for (int x = px - 1; x < px + 2; ++x) {
@@ -69,7 +72,8 @@ private:
   NeighbourMap neighbours_;
 };
 
-int main(void) {
+int main(void)
+{
   std::string line;
   ConwayCubeState state;
   while (std::getline(std::cin, line)) {

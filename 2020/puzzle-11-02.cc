@@ -9,8 +9,8 @@
 
 using Array = std::vector<std::string>;
 
-unsigned search(Array const &a, std::size_t row, std::size_t col, int rd,
-                int cd) {
+unsigned search(Array const& a, std::size_t row, std::size_t col, int rd, int cd)
+{
   int cr = (int)row;
   int cc = (int)col;
   while (true) {
@@ -36,7 +36,8 @@ unsigned search(Array const &a, std::size_t row, std::size_t col, int rd,
   assert(false);
 }
 
-char next_state(Array const &a, std::size_t row, std::size_t col) {
+char next_state(Array const& a, std::size_t row, std::size_t col)
+{
   unsigned occupied = 0;
   for (int row_delta = -1; row_delta < 2; ++row_delta) {
     for (int col_delta = -1; col_delta < 2; ++col_delta) {
@@ -46,16 +47,19 @@ char next_state(Array const &a, std::size_t row, std::size_t col) {
 
   if (a[row][col] == 'L' && occupied == 0) {
     return '#';
-  } else if (a[row][col] == '#' && occupied >= 5) {
+  }
+  else if (a[row][col] == '#' && occupied >= 5) {
     return 'L';
-  } else {
+  }
+  else {
     return a[row][col];
   }
 }
 
-unsigned long count_occupied(Array const &a) {
+unsigned long count_occupied(Array const& a)
+{
   unsigned long count = 0;
-  for (auto const &row : a) {
+  for (auto const& row : a) {
     for (auto col : row) {
       count += (col == '#');
     }
@@ -64,7 +68,8 @@ unsigned long count_occupied(Array const &a) {
   return count;
 }
 
-unsigned long run_to_steady_state(Array const &a) {
+unsigned long run_to_steady_state(Array const& a)
+{
   Array current = a;
   bool changed = true;
   unsigned i = 0;
@@ -89,7 +94,8 @@ unsigned long run_to_steady_state(Array const &a) {
 
   return count_occupied(current);
 }
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Array array;
 
   for (std::string line; std::getline(std::cin, line);) {

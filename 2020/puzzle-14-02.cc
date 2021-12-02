@@ -10,9 +10,10 @@
 using Data = std::uint64_t;
 using Mem = std::map<Data, Data>;
 
-struct Computer {
-
-  void add_instruction(std::string const &s) {
+struct Computer
+{
+  void add_instruction(std::string const& s)
+  {
     static const std::regex re("mem\\[(\\d+)\\] = (\\d+)");
     std::smatch m;
 
@@ -26,28 +27,29 @@ struct Computer {
       for (auto c : mask) {
         if (c == '1') {
           set_ |= Data(1) << bit;
-
-        } else if (c == 'X') {
+        }
+        else if (c == 'X') {
           bits_.push_back(std::size_t(1) << bit);
           std::cout << bit << " (" << (std::size_t(1) << bit) << ") ";
-
-        } else {
+        }
+        else {
           assert(c == '0');
         }
         ++bit;
       }
       assert(bit == mask.size());
       std::cout << " set: 0x" << std::hex << set_ << std::dec << "\n";
-    } else if (std::regex_search(s, m, re)) {
+    }
+    else if (std::regex_search(s, m, re)) {
       Data loc = std::stoul(m.str(1));
       Data value = std::stoul(m.str(2));
       set_mem(loc, value);
     }
   }
 
-  void set_mem(Data loc, Data value) {
-    std::cout << "Writing: " << value << " to base loc " << std::hex << loc
-              << " which floats to:";
+  void set_mem(Data loc, Data value)
+  {
+    std::cout << "Writing: " << value << " to base loc " << std::hex << loc << " which floats to:";
     for (auto b : bits_) {
       loc &= ~b;
     }
@@ -67,7 +69,8 @@ struct Computer {
     std::cout << std::dec << "\n";
   }
 
-  Data mem_sum() const noexcept {
+  Data mem_sum() const noexcept
+  {
     Data r = 0;
     for (auto v : mem_) {
       r += v.second;
@@ -80,7 +83,8 @@ struct Computer {
   Mem mem_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Computer c;
 
   std::string line;

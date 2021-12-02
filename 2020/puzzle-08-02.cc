@@ -9,13 +9,14 @@
 enum class Opcode { Acc, Jmp, Nop };
 using Value = int;
 
-struct Instruction {
-  Instruction(std::string const &s)
-      : op_(to_opcode(s.substr(0, 3))), v_(to_value(s.substr(4))) {}
+struct Instruction
+{
+  Instruction(std::string const& s) : op_(to_opcode(s.substr(0, 3))), v_(to_value(s.substr(4))) {}
 
   Opcode opcode() const noexcept { return op_; }
   Value value() const noexcept { return v_; }
-  bool flip_jmp() {
+  bool flip_jmp()
+  {
     switch (op_) {
     case Opcode::Acc:
       return false;
@@ -31,28 +32,35 @@ struct Instruction {
   }
 
 private:
-  Opcode to_opcode(std::string const &s) {
+  Opcode to_opcode(std::string const& s)
+  {
     if (s == "acc") {
       return Opcode::Acc;
-    } else if (s == "jmp") {
+    }
+    else if (s == "jmp") {
       return Opcode::Jmp;
-    } else if (s == "nop") {
+    }
+    else if (s == "nop") {
       return Opcode::Nop;
-    } else {
+    }
+    else {
       assert(false);
       return Opcode::Nop;
     }
   }
 
-  Value to_value(std::string const &s) {
+  Value to_value(std::string const& s)
+  {
     int sign = 0;
     int v = 0;
     std::size_t pos = 0;
     if (s[0] == '+') {
       sign = 1;
-    } else if (s[0] == '-') {
+    }
+    else if (s[0] == '-') {
       sign = -1;
-    } else {
+    }
+    else {
       assert(false);
     }
     v = std::stoi(s.substr(1), &pos);
@@ -64,7 +72,8 @@ private:
   Value v_;
 };
 
-std::ostream &operator<<(std::ostream &os, Instruction const &i) {
+std::ostream& operator<<(std::ostream& os, Instruction const& i)
+{
   switch (i.opcode()) {
   case Opcode::Acc:
     os << "acc";
@@ -88,15 +97,18 @@ std::ostream &operator<<(std::ostream &os, Instruction const &i) {
 }
 using Instructions = std::vector<Instruction>;
 
-struct VM {
+struct VM
+{
   VM() : pc_(0), acc_(0) {}
 
-  void add_instruction(Instruction const &i) {
+  void add_instruction(Instruction const& i)
+  {
     std::cout << i << "\n";
     instrs_.push_back(i);
   }
 
-  bool execute() {
+  bool execute()
+  {
     std::vector<bool> seen(instrs_.size(), false);
     acc_ = 0;
     pc_ = 0;
@@ -114,12 +126,12 @@ struct VM {
     return false;
   }
 
-  void find_fix() {
+  void find_fix()
+  {
     for (std::size_t pos = 0; pos < instrs_.size(); ++pos) {
       if (instrs_[pos].flip_jmp()) {
         if (execute()) {
-          std::cout << "Success at instruction " << pos << ": " << instrs_[pos]
-                    << "\n";
+          std::cout << "Success at instruction " << pos << ": " << instrs_[pos] << "\n";
           return;
         }
         instrs_[pos].flip_jmp();
@@ -130,7 +142,8 @@ struct VM {
   Value acc() const noexcept { return acc_; }
 
 private:
-  void execute(Instruction const &i) {
+  void execute(Instruction const& i)
+  {
     std::cout << pc_ << ": " << i;
     switch (i.opcode()) {
     case Opcode::Acc:
@@ -154,7 +167,8 @@ private:
   Value acc_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   VM vm;
   for (std::string line; std::getline(std::cin, line);) {
     vm.add_instruction(Instruction(line));

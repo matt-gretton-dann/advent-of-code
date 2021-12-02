@@ -10,12 +10,14 @@
 
 using NumMap = std::unordered_map<int, int>;
 
-int add_to_map(NumMap &nums, int num, int turn) {
+int add_to_map(NumMap& nums, int num, int turn)
+{
   auto [it, success] = nums.insert({num, turn});
   if (success) {
     // std::cout << "Turn " << turn << ": " << num << " (new)\n";
     return 0;
-  } else {
+  }
+  else {
     int r = turn - it->second;
     // std::cout << "Turn " << turn << ": " << num << " (previous seen turn "
     //          << it->second << " dist = " << r << ")\n";
@@ -24,7 +26,8 @@ int add_to_map(NumMap &nums, int num, int turn) {
   }
 }
 
-int run(std::string const &s, int num_turns) {
+int run(std::string const& s, int num_turns)
+{
   NumMap seen;
   std::size_t pos = 0;
   std::size_t len;
@@ -48,7 +51,8 @@ int run(std::string const &s, int num_turns) {
   return next_num;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::string line;
   while (std::getline(std::cin, line)) {
     int r = run(line, 30000000);

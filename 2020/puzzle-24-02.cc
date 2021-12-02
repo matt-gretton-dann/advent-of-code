@@ -12,14 +12,17 @@
 
 using Coord = long;
 using Position = std::pair<Coord, Coord>;
-struct State {
+struct State
+{
   bool black_ = false;
   int neighbours_ = 0;
 };
 using Tiles = std::map<Position, State>;
 
-struct Tiler {
-  void flip_tile(std::string const &s) {
+struct Tiler
+{
+  void flip_tile(std::string const& s)
+  {
     Coord x = 0;
     Coord y = 0;
     auto it = s.begin();
@@ -34,9 +37,11 @@ struct Tiler {
 
       if (*it == 'e') {
         x += dx;
-      } else if (*it == 'w') {
+      }
+      else if (*it == 'w') {
         x -= dx;
-      } else {
+      }
+      else {
         assert(false);
       }
       ++it;
@@ -46,13 +51,14 @@ struct Tiler {
     flip_tile(x, y);
   }
 
-  Tiler next_state() const {
+  Tiler next_state() const
+  {
     Tiler next(*this);
-    for (auto const &kv : tiles_) {
-      if (kv.second.black_ &&
-          (kv.second.neighbours_ == 0 || kv.second.neighbours_ > 2)) {
+    for (auto const& kv : tiles_) {
+      if (kv.second.black_ && (kv.second.neighbours_ == 0 || kv.second.neighbours_ > 2)) {
         next.flip_tile(kv.first.first, kv.first.second);
-      } else if (!kv.second.black_ && kv.second.neighbours_ == 2) {
+      }
+      else if (!kv.second.black_ && kv.second.neighbours_ == 2) {
         next.flip_tile(kv.first.first, kv.first.second);
       }
     }
@@ -60,9 +66,10 @@ struct Tiler {
     return next;
   }
 
-  std::size_t black_count() const noexcept {
+  std::size_t black_count() const noexcept
+  {
     std::size_t count = 0;
-    for (auto const &kv : tiles_) {
+    for (auto const& kv : tiles_) {
       count += kv.second.black_;
     }
 
@@ -70,7 +77,8 @@ struct Tiler {
   }
 
 private:
-  void set_neighbours(Coord x, Coord y, int delta) {
+  void set_neighbours(Coord x, Coord y, int delta)
+  {
     set_neighbour(x + 2, y, delta);
     set_neighbour(x + 1, y - 1, delta);
     set_neighbour(x - 1, y - 1, delta);
@@ -79,7 +87,8 @@ private:
     set_neighbour(x + 1, y + 1, delta);
   }
 
-  void set_neighbour(Coord x, Coord y, int delta) {
+  void set_neighbour(Coord x, Coord y, int delta)
+  {
     auto [it, success] = tiles_.insert({{x, y}, {false, delta}});
     if (!success) {
       it->second.neighbours_ += delta;
@@ -87,14 +96,16 @@ private:
     assert(it->second.neighbours_ >= 0);
   }
 
-  void flip_tile(Coord x, Coord y) {
+  void flip_tile(Coord x, Coord y)
+  {
     auto [it, success] = tiles_.insert({{x, y}, {true, 0}});
     if (!success) {
       it->second.black_ = !it->second.black_;
     }
     if (it->second.black_) {
       set_neighbours(x, y, 1);
-    } else {
+    }
+    else {
       set_neighbours(x, y, -1);
     }
   }
@@ -103,7 +114,8 @@ private:
   Tiles tiles_;
 };
 
-int main(void) {
+int main(void)
+{
   Tiler tiler;
   std::string line;
   while (std::getline(std::cin, line)) {

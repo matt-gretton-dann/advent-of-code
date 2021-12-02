@@ -7,10 +7,11 @@
 
 enum class Action { TurnOn, Toggle, TurnOff };
 using Point = std::pair<unsigned, unsigned>;
-struct Command {
-  Command(std::string const &s) {
-    const char *re =
-        "(turn on|toggle|turn off)\\s(\\d+),(\\d+)\\sthrough\\s(\\d+),(\\d+)";
+struct Command
+{
+  Command(std::string const& s)
+  {
+    const char* re = "(turn on|toggle|turn off)\\s(\\d+),(\\d+)\\sthrough\\s(\\d+),(\\d+)";
     std::smatch m;
     if (!std::regex_search(s, m, std::regex(re))) {
       std::cerr << "Unable to interpret:" << s << "\n";
@@ -18,11 +19,14 @@ struct Command {
     }
     if (m.str(1) == std::string("turn on")) {
       act_ = Action::TurnOn;
-    } else if (m.str(1) == std::string("turn off")) {
+    }
+    else if (m.str(1) == std::string("turn off")) {
       act_ = Action::TurnOff;
-    } else if (m.str(1) == std::string("toggle")) {
+    }
+    else if (m.str(1) == std::string("toggle")) {
       act_ = Action::Toggle;
-    } else {
+    }
+    else {
       assert(false);
     }
     bottom_left_.first = std::stoul(m.str(2), nullptr, 10);
@@ -36,8 +40,11 @@ struct Command {
   Point top_right_;
 };
 
-template <unsigned N> struct Array {
-  Array() noexcept {
+template<unsigned N>
+struct Array
+{
+  Array() noexcept
+  {
     for (unsigned i = 0; i < N; ++i) {
       for (unsigned j = 0; j < N; ++j) {
         lights_[i][j] = 0;
@@ -45,16 +52,15 @@ template <unsigned N> struct Array {
     }
   }
 
-  void apply(Command const &command) noexcept {
+  void apply(Command const& command) noexcept
+  {
     assert(command.bottom_left_.first < N);
     assert(command.bottom_left_.second < N);
     assert(command.top_right_.first < N);
     assert(command.top_right_.second < N);
 
-    for (unsigned i = command.bottom_left_.first; i <= command.top_right_.first;
-         ++i) {
-      for (unsigned j = command.bottom_left_.second;
-           j <= command.top_right_.second; ++j) {
+    for (unsigned i = command.bottom_left_.first; i <= command.top_right_.first; ++i) {
+      for (unsigned j = command.bottom_left_.second; j <= command.top_right_.second; ++j) {
         switch (command.act_) {
         case Action::TurnOn:
           ++lights_[i][j];
@@ -72,7 +78,8 @@ template <unsigned N> struct Array {
     }
   }
 
-  unsigned brightness() const noexcept {
+  unsigned brightness() const noexcept
+  {
     unsigned count = 0;
     for (unsigned i = 0; i < N; ++i) {
       for (unsigned j = 0; j < N; ++j) {
@@ -83,7 +90,8 @@ template <unsigned N> struct Array {
   }
 
   /// Output a bitmap
-  void bitmap() const {
+  void bitmap() const
+  {
     unsigned max = 0;
     for (unsigned i = 0; i < N; ++i) {
       for (unsigned j = 0; j < N; ++j) {
@@ -103,7 +111,8 @@ template <unsigned N> struct Array {
   unsigned lights_[N][N];
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Array<1000> arr;
   for (std::string line; std::getline(std::cin, line);) {
     Command cmd(line);

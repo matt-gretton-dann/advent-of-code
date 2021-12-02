@@ -8,7 +8,8 @@
 
 enum class State { Begin, Normal, Escape, Hex1, Hex2, End };
 
-std::string unescape(std::string const &s) {
+std::string unescape(std::string const& s)
+{
   std::string unescaped;
   static const std::string hex = "0123456789abcdef0123456789ABCDEF";
 
@@ -23,9 +24,11 @@ std::string unescape(std::string const &s) {
     case State::Normal:
       if (c == '\\') {
         state = State::Escape;
-      } else if (c == '"') {
+      }
+      else if (c == '"') {
         state = State::End;
-      } else {
+      }
+      else {
         unescaped += c;
       }
       break;
@@ -33,10 +36,12 @@ std::string unescape(std::string const &s) {
       if (c == '\\' || c == '"') {
         state = State::Normal;
         unescaped += c;
-      } else if (c == 'x') {
+      }
+      else if (c == 'x') {
         byte = 0;
         state = State::Hex1;
-      } else {
+      }
+      else {
         assert(false);
       }
       break;
@@ -62,16 +67,16 @@ std::string unescape(std::string const &s) {
   return unescaped;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   unsigned len = 0;
 
   // Parse the input
   for (std::string line; std::getline(std::cin, line);) {
     std::string unescaped = unescape(line);
     len += line.length() - unescaped.length();
-    std::cout << line << ": " << line.length() << " written bytes, "
-              << unescaped.length() << " memory bytes, difference: "
-              << line.length() - unescaped.length() << "\n";
+    std::cout << line << ": " << line.length() << " written bytes, " << unescaped.length()
+              << " memory bytes, difference: " << line.length() - unescaped.length() << "\n";
   }
 
   std::cout << len << "\n";

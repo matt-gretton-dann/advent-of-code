@@ -8,7 +8,7 @@
 // Various types that are useful
 using StringSet = std::set<std::string>;
 using StringMap = std::map<std::string, std::string>;
-using ValidateFn = std::function<bool(std::string const &)>;
+using ValidateFn = std::function<bool(std::string const&)>;
 using ValidateMap = std::map<std::string, ValidateFn>;
 
 namespace {
@@ -19,7 +19,8 @@ namespace {
  * \a str is expected to look like a space separated list of pairs where each
  * pair is of the form 'key:value'.
  */
-StringMap parse_line(std::string const &str) {
+StringMap parse_line(std::string const& str)
+{
   StringMap result;
   std::string::size_type pos = 0;
 
@@ -32,9 +33,8 @@ StringMap parse_line(std::string const &str) {
     assert(colon_pos != std::string::npos);
     assert(colon_pos < end_pos);
     auto key_len = colon_pos - pos;
-    auto value_len = (end_pos == std::string::npos)
-                         ? std::string::npos
-                         : (end_pos - (colon_pos + 1));
+    auto value_len =
+      (end_pos == std::string::npos) ? std::string::npos : (end_pos - (colon_pos + 1));
     auto key = str.substr(pos, key_len);
     auto value = str.substr(colon_pos + 1, value_len);
     result.insert({key, value});
@@ -50,7 +50,8 @@ StringMap parse_line(std::string const &str) {
  *  \param  max Maximum year to accept
  *  \return     True if \a s is in range [min, max]
  */
-bool validate_year(std::string const &s, unsigned min, unsigned max) {
+bool validate_year(std::string const& s, unsigned min, unsigned max)
+{
   if (s.length() != 4) {
     return false;
   }
@@ -63,16 +64,17 @@ bool validate_year(std::string const &s, unsigned min, unsigned max) {
 }
 
 /// Validate byr field
-bool validate_byr(std::string const &s) { return validate_year(s, 1920, 2002); }
+bool validate_byr(std::string const& s) { return validate_year(s, 1920, 2002); }
 
 /// Validate iyr field
-bool validate_iyr(std::string const &s) { return validate_year(s, 2010, 2020); }
+bool validate_iyr(std::string const& s) { return validate_year(s, 2010, 2020); }
 
 /// Validate eyr field
-bool validate_eyr(std::string const &s) { return validate_year(s, 2020, 2030); }
+bool validate_eyr(std::string const& s) { return validate_year(s, 2020, 2030); }
 
 /// Validate hgt field
-bool validate_hgt(std::string const &s) {
+bool validate_hgt(std::string const& s)
+{
   std::size_t pos = 0;
   auto hgt = std::stoul(s, &pos, 10);
   if (pos != s.length() - 2) {
@@ -80,7 +82,8 @@ bool validate_hgt(std::string const &s) {
   }
   if (s[pos] == 'c' && s[pos + 1] == 'm') {
     return hgt >= 150 && hgt <= 193;
-  } else if (s[pos] == 'i' && s[pos + 1] == 'n') {
+  }
+  else if (s[pos] == 'i' && s[pos + 1] == 'n') {
     return hgt >= 59 && hgt <= 76;
   }
   return false;
@@ -92,8 +95,8 @@ bool validate_hgt(std::string const &s) {
  *  \param cs   Valid characters
  *  \return     True iff we pass validation
  */
-bool validate_chars(std::string const &s, std::string::size_type len,
-                    std::string const &cs) {
+bool validate_chars(std::string const& s, std::string::size_type len, std::string const& cs)
+{
   if (s.length() != len) {
     return false;
   }
@@ -107,7 +110,8 @@ bool validate_chars(std::string const &s, std::string::size_type len,
 }
 
 /// Validate hcl field
-bool validate_hcl(std::string const &s) {
+bool validate_hcl(std::string const& s)
+{
   if (s.length() != 7) {
     return false;
   }
@@ -118,46 +122,43 @@ bool validate_hcl(std::string const &s) {
 }
 
 /// Validate ecl field
-bool validate_ecl(std::string const &s) {
-  static const StringSet valid = {"amb", "blu", "brn", "gry",
-                                  "grn", "hzl", "oth"};
+bool validate_ecl(std::string const& s)
+{
+  static const StringSet valid = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
   return valid.find(s) != valid.end();
 }
 
 /// Validate pid field
-bool validate_pid(std::string const &s) {
-  return validate_chars(s, 9, "0123456789");
-}
+bool validate_pid(std::string const& s) { return validate_chars(s, 9, "0123456789"); }
 
 /// Validate cid field
-bool validate_cid(std::string const &s) { return true; }
+bool validate_cid(std::string const& s) { return true; }
 
 /// Check if a passport is valid
 ///
 /// A passport is valid if it contains all mandatory fields, and passes
 /// validation on all fields.
-bool is_valid_passport(StringMap const &found) {
-  static const StringSet mandatory{"byr", "iyr", "eyr", "hgt",
-                                   "hcl", "ecl", "pid"};
+bool is_valid_passport(StringMap const& found)
+{
+  static const StringSet mandatory{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"};
   static const ValidateMap validators{
-      {"byr", validate_byr}, {"iyr", validate_iyr}, {"eyr", validate_eyr},
-      {"hgt", validate_hgt}, {"hcl", validate_hcl}, {"ecl", validate_ecl},
-      {"pid", validate_pid}, {"cid", validate_cid},
+    {"byr", validate_byr}, {"iyr", validate_iyr}, {"eyr", validate_eyr}, {"hgt", validate_hgt},
+    {"hcl", validate_hcl}, {"ecl", validate_ecl}, {"pid", validate_pid}, {"cid", validate_cid},
   };
 
   unsigned mandatory_found = 0;
-  for (auto const &kv : found) {
+  for (auto const& kv : found) {
     if (mandatory.find(kv.first) != mandatory.end()) {
       ++mandatory_found;
     }
     auto validator = validators.find(kv.first);
     if (validator == validators.end()) {
       std::cout << "Found invalid key: " << kv.first << "\n";
-    } else {
+    }
+    else {
       auto valid = validator->second(kv.second);
       if (!valid) {
-        std::cout << "Invalid value for key: " << kv.first << ": " << kv.second
-                  << "\n";
+        std::cout << "Invalid value for key: " << kv.first << ": " << kv.second << "\n";
         return false;
       }
     }
@@ -165,17 +166,18 @@ bool is_valid_passport(StringMap const &found) {
 
   return mandatory_found == mandatory.size();
 }
-} // namespace
+}  // namespace
 
-int main(int argc, char **argv) {
-
+int main(int argc, char** argv)
+{
   StringMap found;
   unsigned valid = 0;
   for (std::string line; std::getline(std::cin, line);) {
     if (!line.empty()) {
       auto keys = parse_line(line);
       found.insert(keys.begin(), keys.end());
-    } else {
+    }
+    else {
       valid += is_valid_passport(found);
       found.clear();
     }

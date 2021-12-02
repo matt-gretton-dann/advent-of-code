@@ -3,12 +3,14 @@
 #include <string>
 #include <vector>
 
-std::string rotate(std::string const &s, std::string::size_type amount) {
+std::string rotate(std::string const& s, std::string::size_type amount)
+{
   auto length = s.length();
   return (s + s).substr(amount % length, length);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   if (argc != 3) {
     std::cerr << "Usage: " << argv[0] << " <right> <down>\n";
     return 1;

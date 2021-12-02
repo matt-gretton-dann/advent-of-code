@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 
-struct PasswordChecker {
-  PasswordChecker(std::string const &s) {
+struct PasswordChecker
+{
+  PasswordChecker(std::string const& s)
+  {
     std::size_t pos = 0;
     min_ = std::stoul(s, &pos, 10);
     assert(s[pos] == '-');
@@ -17,7 +19,8 @@ struct PasswordChecker {
     password_ = s2.substr(pos + 4);
   }
 
-  bool is_valid() const {
+  bool is_valid() const
+  {
     std::string::size_type count = 0;
     for (auto c : password_) {
       if (c == c_) {
@@ -34,13 +37,15 @@ struct PasswordChecker {
   std::string password_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   unsigned count = 0;
   for (std::string line; std::getline(std::cin, line);) {
     PasswordChecker check(line);
     if (check.is_valid()) {
       ++count;
-    } else {
+    }
+    else {
       std::cout << "IN";
     }
     std::cout << "VALID: " << line << "\n";

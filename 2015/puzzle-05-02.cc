@@ -8,7 +8,8 @@
 // Nice strings have:
 //   repeated double letters - but not overlapping
 //   repeated letters separated by one other.
-bool is_nice(std::string const &s) noexcept {
+bool is_nice(std::string const& s) noexcept
+{
   bool repeated_pair = false;
   bool repeated_sep = false;
 
@@ -34,7 +35,8 @@ bool is_nice(std::string const &s) noexcept {
   return repeated_pair && repeated_sep;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   unsigned nice_strings;
   for (std::string line; std::getline(std::cin, line);) {
     nice_strings += is_nice(line);

@@ -9,8 +9,10 @@
 
 using ValidVector = std::vector<bool>;
 
-struct Classifier {
-  void add_ranges(std::string const &s) {
+struct Classifier
+{
+  void add_ranges(std::string const& s)
+  {
     static const std::regex re("(\\w+): (\\d+)-(\\d+) or (\\d+)-(\\d+)");
     std::smatch m;
     if (std::regex_search(s, m, re)) {
@@ -22,7 +24,8 @@ struct Classifier {
     }
   }
 
-  void add_range(std::string const &lows, std::string const &highs) {
+  void add_range(std::string const& lows, std::string const& highs)
+  {
     int low = std::stoi(lows);
     int high = std::stoi(highs);
     ++high;
@@ -36,7 +39,8 @@ struct Classifier {
     }
   }
 
-  int count_errors(std::string const &s) {
+  int count_errors(std::string const& s)
+  {
     std::string::size_type pos = 0;
     int result = 0;
     while (pos < s.size()) {
@@ -59,7 +63,8 @@ struct Classifier {
 
 enum class State { Permitted, Your, Nearby };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::string line;
 
   State s = State::Permitted;
@@ -68,13 +73,17 @@ int main(int argc, char **argv) {
   while (std::getline(std::cin, line)) {
     if (line == "your ticket:") {
       s = State::Your;
-    } else if (line == "nearby tickets:") {
+    }
+    else if (line == "nearby tickets:") {
       s = State::Nearby;
-    } else if (line == "") {
+    }
+    else if (line == "") {
       /* nothing */;
-    } else if (s == State::Permitted) {
+    }
+    else if (s == State::Permitted) {
       c.add_ranges(line);
-    } else if (s == State::Nearby) {
+    }
+    else if (s == State::Nearby) {
       e += c.count_errors(line);
     }
   }

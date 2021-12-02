@@ -9,7 +9,8 @@
 #include <string>
 #include <variant>
 
-struct Graph {
+struct Graph
+{
   Graph() { nodes_.insert("self"); }
   using Node = std::string;
   using Weight = int;
@@ -18,10 +19,10 @@ struct Graph {
   using Edge = std::pair<Node, Node>;
   using EdgeWeights = std::map<Edge, Weight>;
 
-  void add_edge(std::string const &s) {
-    static const std::regex re(
-        "(\\w+) would (gain|lose) (\\d+) happiness units? "
-        "by sitting next to (\\w+).");
+  void add_edge(std::string const& s)
+  {
+    static const std::regex re("(\\w+) would (gain|lose) (\\d+) happiness units? "
+                               "by sitting next to (\\w+).");
     std::smatch m;
     if (std::regex_search(s, m, re)) {
       nodes_.insert(m.str(1));
@@ -33,18 +34,20 @@ struct Graph {
         delta = -delta;
       }
       weights_.insert({{m.str(1), m.str(4)}, delta});
-    } else {
+    }
+    else {
       assert(false);
     }
   }
 
-  Weight max_happiness() const {
+  Weight max_happiness() const
+  {
     int max_happiness = INT_MIN;
     NodeList nl(nodes_.begin(), nodes_.end());
     std::sort(nl.begin(), nl.end());
     do {
       std::cout << "\r";
-      for (auto const &s : nl) {
+      for (auto const& s : nl) {
         std::cout << s << " ";
       }
       int h = happiness(nl);
@@ -59,7 +62,8 @@ struct Graph {
     return max_happiness;
   }
 
-  int happiness(NodeList const &nl) const {
+  int happiness(NodeList const& nl) const
+  {
     int h = 0;
     h += weights_.find(std::make_pair(nl[nl.size() - 1], nl[0]))->second;
     h += weights_.find(std::make_pair(nl[0], nl[nl.size() - 1]))->second;
@@ -74,7 +78,8 @@ struct Graph {
   EdgeWeights weights_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Graph g;
   for (std::string line; std::getline(std::cin, line);) {
     g.add_edge(line);

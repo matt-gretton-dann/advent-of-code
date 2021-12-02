@@ -2,7 +2,8 @@
 #include <string>
 #include <vector>
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::vector<int> vals;
   for (std::string line; std::getline(std::cin, line);) {
     int val = std::stoi(line, nullptr, 10);

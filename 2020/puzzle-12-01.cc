@@ -9,10 +9,12 @@
 
 enum class Heading { North = 'N', East = 'E', South = 'S', West = 'W' };
 
-struct Position {
+struct Position
+{
   Position() : x_(0), y_(0), head_(Heading::East) {}
 
-  void move(std::string const &s) {
+  void move(std::string const& s)
+  {
     char act = s[0];
     int dist = std::stoi(s.substr(1));
 
@@ -39,7 +41,8 @@ struct Position {
     std::cout << s << ": (" << x_ << ", " << y_ << ")\n";
   }
 
-  void move(int dist, Heading head) {
+  void move(int dist, Heading head)
+  {
     switch (head) {
     case Heading::North:
       y_ += dist;
@@ -59,7 +62,8 @@ struct Position {
     }
   }
 
-  void rotate_left(int deg) {
+  void rotate_left(int deg)
+  {
     /* We want the rang [-180, 180]. */
     while (deg < -180) {
       deg += 360;
@@ -85,7 +89,8 @@ struct Position {
       default:
         assert(false);
       }
-    } else if (deg == 90) {
+    }
+    else if (deg == 90) {
       switch (head_) {
       case Heading::North:
         head_ = Heading::West;
@@ -102,7 +107,8 @@ struct Position {
       default:
         assert(false);
       }
-    } else if (deg == 180 || deg == -180) {
+    }
+    else if (deg == 180 || deg == -180) {
       switch (head_) {
       case Heading::North:
         head_ = Heading::South;
@@ -119,7 +125,8 @@ struct Position {
       default:
         assert(false);
       }
-    } else if (deg != 0) {
+    }
+    else if (deg != 0) {
       assert(false);
     }
   }
@@ -131,7 +138,8 @@ struct Position {
   Heading head_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Position pos;
 
   for (std::string line; std::getline(std::cin, line);) {

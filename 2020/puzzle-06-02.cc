@@ -6,8 +6,10 @@
 
 using OccuranceMap = std::map<char, unsigned>;
 
-struct GroupAnswers {
-  void add_answers(std::string const &a) {
+struct GroupAnswers
+{
+  void add_answers(std::string const& a)
+  {
     // Increase group size
     ++group_size_;
 
@@ -16,14 +18,16 @@ struct GroupAnswers {
       auto it = map_.find(c);
       if (it == map_.end()) {
         map_.insert({c, 1});
-      } else {
+      }
+      else {
         ++(it->second);
       }
     }
   }
 
   // Count the number of answered questions answered by everyone.
-  unsigned all_answer_count() const noexcept {
+  unsigned all_answer_count() const noexcept
+  {
     unsigned count = 0;
     for (auto kv : map_) {
       if (kv.second == group_size_) {
@@ -34,7 +38,8 @@ struct GroupAnswers {
     return count;
   }
 
-  void clear() {
+  void clear()
+  {
     map_.clear();
     group_size_ = 0;
   }
@@ -43,13 +48,15 @@ struct GroupAnswers {
   unsigned group_size_ = 0;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   GroupAnswers answers;
   unsigned count = 0;
   for (std::string line; std::getline(std::cin, line);) {
     if (!line.empty()) {
       answers.add_answers(line);
-    } else {
+    }
+    else {
       count += answers.all_answer_count();
       answers.clear();
     }

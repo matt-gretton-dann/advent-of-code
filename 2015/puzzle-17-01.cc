@@ -14,9 +14,9 @@ constexpr Quantity total = 150;
 
 using Quantities = std::vector<Quantity>;
 
-unsigned count_combinations(Quantities::const_iterator it,
-                            Quantities::const_iterator end, Quantity amount,
-                            unsigned depth = 0) {
+unsigned count_combinations(Quantities::const_iterator it, Quantities::const_iterator end,
+                            Quantity amount, unsigned depth = 0)
+{
   // We have no room for this container
   std::cout << std::string(depth, ' ') << *it << ": " << amount << "\n";
   if (amount < *it) {
@@ -36,7 +36,8 @@ unsigned count_combinations(Quantities::const_iterator it,
   return result;
 }
 
-unsigned count_combinations(Quantities const &containers) {
+unsigned count_combinations(Quantities const& containers)
+{
   unsigned result = 0;
   for (auto it = containers.begin(); it != containers.end(); ++it) {
     result += count_combinations(it, containers.end(), total);
@@ -44,7 +45,8 @@ unsigned count_combinations(Quantities const &containers) {
   return result;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::string line;
   Quantities containers;
   while (std::getline(std::cin, line)) {

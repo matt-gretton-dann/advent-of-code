@@ -12,8 +12,10 @@
 using Score = long;
 using PropertyMap = std::map<std::string, Score>;
 
-struct Ingredient {
-  explicit Ingredient(std::string const &s) {
+struct Ingredient
+{
+  explicit Ingredient(std::string const& s)
+  {
     auto colon = s.find(':');
     name_ = s.substr(0, colon);
     auto suffix = s.substr(colon + 1);
@@ -22,25 +24,24 @@ struct Ingredient {
       static const std::regex re(",? (\\w+) (-?\\d+)");
       std::smatch m;
       if (std::regex_search(suffix, m, re)) {
-        auto [it, success] =
-            properties_.insert({m.str(1), std::stol(m.str(2))});
+        auto [it, success] = properties_.insert({m.str(1), std::stol(m.str(2))});
         assert(success);
         std::cout << "  " << it->first << ": " << it->second << "\n";
         suffix = m.suffix();
-      } else {
+      }
+      else {
         assert(false);
       }
     }
   }
 
-  bool operator<(Ingredient const &rhs) const noexcept {
-    return name_ < rhs.name_;
-  }
+  bool operator<(Ingredient const& rhs) const noexcept { return name_ < rhs.name_; }
 
-  std::string const &name() const noexcept { return name_; }
+  std::string const& name() const noexcept { return name_; }
 
-  void update_score(Score amount, PropertyMap &totals) const {
-    for (auto const &kv : properties_) {
+  void update_score(Score amount, PropertyMap& totals) const
+  {
+    for (auto const& kv : properties_) {
       auto [it, success] = totals.insert({kv.first, amount * kv.second});
       if (!success) {
         it->second += amount * kv.second;
@@ -53,20 +54,20 @@ private:
   PropertyMap properties_;
 };
 
-struct Ingredients {
-  void add_ingredient(std::string const &s) {
-    ingredients_.push_back(Ingredient(s));
-  }
+struct Ingredients
+{
+  void add_ingredient(std::string const& s) { ingredients_.push_back(Ingredient(s)); }
 
-  Score best_combination(Score amount) const {
+  Score best_combination(Score amount) const
+  {
     PropertyMap totals;
     return best_combination(amount, ingredients_.begin(), 0UL, totals);
   }
 
 private:
-  Score best_combination(Score amount,
-                         std::vector<Ingredient>::const_iterator it,
-                         Score best_score, PropertyMap &totals) const {
+  Score best_combination(Score amount, std::vector<Ingredient>::const_iterator it, Score best_score,
+                         PropertyMap& totals) const
+  {
     it->update_score(amount, totals);
     auto it2 = it;
     ++it2;
@@ -80,18 +81,18 @@ private:
     for (auto allocation = amount - 1; allocation > 0; --allocation) {
       it->update_score(-1, totals);
       best_score =
-          std::max(best_score, best_combination(amount - allocation, it2,
-                                                best_score, totals));
+        std::max(best_score, best_combination(amount - allocation, it2, best_score, totals));
     }
     it->update_score(-1, totals);
 
     return best_score;
   }
 
-  Score calculate_score(PropertyMap const &totals) const {
+  Score calculate_score(PropertyMap const& totals) const
+  {
     Score r = 1;
     Score calories = 0;
-    for (auto const &kv : totals) {
+    for (auto const& kv : totals) {
       if (kv.first == "calories") {
         calories += kv.second;
         continue;
@@ -110,7 +111,8 @@ private:
   std::vector<Ingredient> ingredients_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Ingredients ingredients;
 
   std::string line;

@@ -14,8 +14,10 @@ using Card = unsigned;
 using Cards = std::list<Card>;
 using Score = unsigned long;
 
-struct Player {
-  Player(std::istream &is) {
+struct Player
+{
+  Player(std::istream& is)
+  {
     std::string line;
     if (!std::getline(is, name_)) {
       assert(false);
@@ -33,7 +35,8 @@ struct Player {
   void pop_front() { cards_.pop_front(); }
   void push_back(Card c) { cards_.push_back(c); }
 
-  Score score() const {
+  Score score() const
+  {
     Score r = 0;
     unsigned idx = 1;
     for (auto it = cards_.rbegin(); it != cards_.rend(); ++it) {
@@ -48,7 +51,8 @@ private:
   Cards cards_;
 };
 
-Score play_game(Player &p1, Player &p2) {
+Score play_game(Player& p1, Player& p2)
+{
   while (!p1.empty() && !p2.empty()) {
     Card c1 = p1.front();
     Card c2 = p2.front();
@@ -57,7 +61,8 @@ Score play_game(Player &p1, Player &p2) {
     if (c1 > c2) {
       p1.push_back(c1);
       p1.push_back(c2);
-    } else if (c1 < c2) {
+    }
+    else if (c1 < c2) {
       p2.push_back(c2);
       p2.push_back(c1);
     }
@@ -66,7 +71,8 @@ Score play_game(Player &p1, Player &p2) {
   return p1.score() + p2.score();
 }
 
-int main(void) {
+int main(void)
+{
   Player player1(std::cin);
   Player player2(std::cin);
 

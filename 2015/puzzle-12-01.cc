@@ -7,7 +7,8 @@
 #include <string>
 #include <variant>
 
-int parse_numbers(std::string const &s) {
+int parse_numbers(std::string const& s)
+{
   static const std::regex re("-?\\d+");
   std::string left = s;
   std::smatch m;
@@ -20,7 +21,8 @@ int parse_numbers(std::string const &s) {
   return acc;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   int acc = 0;
   for (std::string line; std::getline(std::cin, line);) {
     acc += parse_numbers(line);

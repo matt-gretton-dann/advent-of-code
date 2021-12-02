@@ -16,29 +16,30 @@ using Speed = unsigned long;
 struct Reindeer;
 using ReindeerSet = std::set<Reindeer>;
 
-struct Reindeer {
-  Reindeer(std::string const &s) {
-    static const std::regex re(
-        "(\\w+) can fly (\\d+) km/s for (\\d+) seconds?, "
-        "but then must rest for (\\d+) seconds?.");
+struct Reindeer
+{
+  Reindeer(std::string const& s)
+  {
+    static const std::regex re("(\\w+) can fly (\\d+) km/s for (\\d+) seconds?, "
+                               "but then must rest for (\\d+) seconds?.");
     std::smatch m;
     if (std::regex_search(s, m, re)) {
       name_ = m.str(1);
       speed_ = std::stoul(m.str(2));
       fly_time_ = std::stoul(m.str(3));
       rest_time_ = std::stoul(m.str(4));
-    } else {
+    }
+    else {
       assert(false);
     }
   }
 
-  bool operator<(Reindeer const &rhs) const noexcept {
-    return name_ < rhs.name_;
-  }
+  bool operator<(Reindeer const& rhs) const noexcept { return name_ < rhs.name_; }
 
-  std::string const &name() const { return name_; }
+  std::string const& name() const { return name_; }
 
-  Distance distance(Time t) const { // Period and number of them
+  Distance distance(Time t) const
+  {  // Period and number of them
     Time period = fly_time_ + rest_time_;
     unsigned periods = t / period;
 
@@ -59,7 +60,8 @@ struct Reindeer {
   Time rest_time_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   ReindeerSet reindeer;
 
   for (std::string line; std::getline(std::cin, line);) {
@@ -68,21 +70,20 @@ int main(int argc, char **argv) {
 
   std::map<std::string, unsigned> score;
   for (unsigned t = 1; t < 2504; ++t) {
-    auto it =
-        std::max_element(reindeer.begin(), reindeer.end(),
-                         [t](Reindeer const &lhs, Reindeer const &rhs) -> bool {
-                           return lhs.distance(t) < rhs.distance(t);
-                         });
+    auto it = std::max_element(reindeer.begin(), reindeer.end(),
+                               [t](Reindeer const& lhs, Reindeer const& rhs) -> bool {
+                                 return lhs.distance(t) < rhs.distance(t);
+                               });
     auto [iit, success] = score.insert({it->name(), 1});
     if (!success) {
       iit->second++;
     }
   }
 
-  auto it = std::max_element(score.begin(), score.end(),
-                             [](auto const &lhs, auto const &rhs) -> bool {
-                               return lhs.second < rhs.second;
-                             });
+  auto it =
+    std::max_element(score.begin(), score.end(), [](auto const& lhs, auto const& rhs) -> bool {
+      return lhs.second < rhs.second;
+    });
   std::cout << it->first << " wins with a score of " << it->second << "\n";
 
   return 0;

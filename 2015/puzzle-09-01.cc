@@ -13,8 +13,10 @@ using Edge = std::pair<Node, Node>;
 using Nodes = std::set<Node>;
 using Edges = std::map<Edge, Weight>;
 
-struct Graph {
-  void add_edge(std::string const &s) {
+struct Graph
+{
+  void add_edge(std::string const& s)
+  {
     static const std::regex re("(.+) to (.+) = (\\d+)");
     std::smatch m;
     if (!std::regex_search(s, m, re)) {
@@ -35,7 +37,8 @@ struct Graph {
     std::cout << n1 << " <-> " << n2 << " weight: " << w << "\n";
   }
 
-  Weight solve_tsp() const {
+  Weight solve_tsp() const
+  {
     Weight min_weight = ~0U;
     std::vector<Node> nodes(nodes_.begin(), nodes_.end());
     std::sort(nodes.begin(), nodes.end());
@@ -64,7 +67,8 @@ struct Graph {
   Edges weights_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Graph g;
 
   // Parse the input

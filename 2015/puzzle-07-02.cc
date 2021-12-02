@@ -24,22 +24,28 @@
 // implementation)
 
 // helper type for the visitor #4
-template <class... Ts> struct Overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts>
+struct Overloaded : Ts...
+{
+  using Ts::operator()...;
+};
 // explicit deduction guide (not needed as of C++20)
-template <class... Ts> Overloaded(Ts...) -> Overloaded<Ts...>;
+template<class... Ts>
+Overloaded(Ts...) -> Overloaded<Ts...>;
 
 /// Instruction action
 enum class Action {
-  Set,    ///< Set value
-  And,    ///< And two values
-  Or,     ///< Or two values
-  LShift, ///< Left shift
-  RShift, ///< Right shift
-  Not     ///< Bitwise not
+  Set,     ///< Set value
+  And,     ///< And two values
+  Or,      ///< Or two values
+  LShift,  ///< Left shift
+  RShift,  ///< Right shift
+  Not      ///< Bitwise not
 };
 
 /// Pretty-print action
-std::ostream &operator<<(std::ostream &os, Action act) {
+std::ostream& operator<<(std::ostream& os, Action act)
+{
   switch (act) {
   case Action::Set:
     os << "SET";
@@ -63,22 +69,24 @@ std::ostream &operator<<(std::ostream &os, Action act) {
   return os;
 }
 
-using Value = std::uint16_t;              ///< Value
-using Wire = std::string;                 ///< Wire name (string)
-using Signal = std::variant<Value, Wire>; ///< Either a wire or explicit value
+using Value = std::uint16_t;               ///< Value
+using Wire = std::string;                  ///< Wire name (string)
+using Signal = std::variant<Value, Wire>;  ///< Either a wire or explicit value
 
 /// Outputter for a signal
-std::ostream &operator<<(std::ostream &os, Signal const &signal) {
+std::ostream& operator<<(std::ostream& os, Signal const& signal)
+{
   return std::visit(
-      [&os](auto &&arg) -> std::ostream & {
-        os << arg;
-        return os;
-      },
-      signal);
+    [&os](auto&& arg) -> std::ostream& {
+      os << arg;
+      return os;
+    },
+    signal);
 }
 
 /** \brief  An instruction.  */
-struct Instruction {
+struct Instruction
+{
   /** \brief  Construct an instruction.
    *
    * \subsection Grammar
@@ -92,7 +100,8 @@ struct Instruction {
    *    binop  := signal op signal '->' wire
    *    instr  := binop | not | set
    */
-  Instruction(std::string const &s) {
+  Instruction(std::string const& s)
+  {
     if (parse_bin_op(s)) {
       return;
     }
@@ -110,20 +119,22 @@ struct Instruction {
   Action action() const noexcept { return act_; }
 
   /// Get the destination wire
-  Wire const &dest() const noexcept { return dest_; }
+  Wire const& dest() const noexcept { return dest_; }
 
   /// Get the first (or only) source
-  Signal const &src1() const noexcept { return src1_; }
+  Signal const& src1() const noexcept { return src1_; }
 
   /// Get the second source
-  Signal const &src2() const noexcept {
+  Signal const& src2() const noexcept
+  {
     assert(act_ != Action::Set && act_ != Action::Not);
     return src2_;
   }
 
 private:
   /// Parse a <not> instruction.  Return true if successful.
-  bool parse_not(std::string const &s) {
+  bool parse_not(std::string const& s)
+  {
     if (s.substr(0, 4) == "NOT ") {
       std::string::size_type pos = 4;
       while (s[pos] == ' ') {
@@ -135,7 +146,8 @@ private:
   }
 
   /// Parse a <bin_op> instruction.  Return true if successful.
-  bool parse_bin_op(std::string const &s) {
+  bool parse_bin_op(std::string const& s)
+  {
     static const std::regex re("^([[:lower:][:digit:]]+) ([[:upper:]]+) "
                                "([[:lower:][:digit:]]+) -> ([[:lower:]]+)");
     std::smatch m;
@@ -145,13 +157,17 @@ private:
 
     if (m.str(2) == "AND") {
       act_ = Action::And;
-    } else if (m.str(2) == "OR") {
+    }
+    else if (m.str(2) == "OR") {
       act_ = Action::Or;
-    } else if (m.str(2) == "LSHIFT") {
+    }
+    else if (m.str(2) == "LSHIFT") {
       act_ = Action::LShift;
-    } else if (m.str(2) == "RSHIFT") {
+    }
+    else if (m.str(2) == "RSHIFT") {
       act_ = Action::RShift;
-    } else {
+    }
+    else {
       return false;
     }
     dest_ = m.str(4);
@@ -165,7 +181,8 @@ private:
   ///
   /// Also used for the latter half of <not> parsing.  ACT tells you what is
   /// being parsed. Returns true if parsing successful.
-  bool parse_set(std::string const &s, Action act = Action::Set) {
+  bool parse_set(std::string const& s, Action act = Action::Set)
+  {
     static const std::regex re("^([[:lower:][:digit:]]+) -> ([[:lower:]]+)");
     std::smatch m;
     if (!std::regex_search(s, m, re)) {
@@ -179,23 +196,26 @@ private:
   }
 
   /// Make a Signal from a string.
-  Signal make_signal(std::string const &s) {
+  Signal make_signal(std::string const& s)
+  {
     if (std::isdigit(s[0])) {
       auto u = std::stoul(s, nullptr, 10);
       assert(u <= UINT16_MAX);
       return Signal(static_cast<std::uint16_t>(u));
-    } else {
+    }
+    else {
       return Signal(s);
     }
   }
 
-  Action act_;         ///< Action
-  Wire dest_;          ///< Destination wire
-  Signal src1_, src2_; ///< Source signals
+  Action act_;          ///< Action
+  Wire dest_;           ///< Destination wire
+  Signal src1_, src2_;  ///< Source signals
 };
 
 /// Outputter for an instruction.
-std::ostream &operator<<(std::ostream &os, Instruction const &instr) {
+std::ostream& operator<<(std::ostream& os, Instruction const& instr)
+{
   os << instr.action() << " " << instr.dest() << ", " << instr.src1();
   if (instr.action() != Action::Set && instr.action() != Action::Not) {
     os << ", " << instr.src2();
@@ -204,56 +224,58 @@ std::ostream &operator<<(std::ostream &os, Instruction const &instr) {
 }
 
 /// Ma
-using ValueMap = std::map<Wire, Value>;        ///< Map wires to values
-using Instructions = std::vector<Instruction>; ///< Instructions to execute
+using ValueMap = std::map<Wire, Value>;         ///< Map wires to values
+using Instructions = std::vector<Instruction>;  ///< Instructions to execute
 
-struct VM {
+struct VM
+{
   /// Add an instruction the the list we have
-  void add_instr(Instruction const &instr) { instrs_.push_back(instr); }
+  void add_instr(Instruction const& instr) { instrs_.push_back(instr); }
 
   /// Has this wire a known value?
-  bool has_value(Wire const &w) const noexcept {
-    return values_.find(w) != values_.end();
-  }
+  bool has_value(Wire const& w) const noexcept { return values_.find(w) != values_.end(); }
 
   /// Has this signal a known value?
-  bool has_value(Signal const &s) const noexcept {
-    return std::visit(Overloaded{[](Value v) { return true; },
-                                 [&](Wire const &w) { return has_value(w); }},
-                      s);
+  bool has_value(Signal const& s) const noexcept
+  {
+    return std::visit(
+      Overloaded{[](Value v) { return true; }, [&](Wire const& w) { return has_value(w); }}, s);
   }
 
   /// Get the value on the wire
-  Value value(Wire const &w) const noexcept {
+  Value value(Wire const& w) const noexcept
+  {
     assert(has_value(w));
     return values_.find(w)->second;
   }
 
   /// Get the value of a signal
-  Value value(Signal const &s) const noexcept {
-    return std::visit(Overloaded{[](Value v) { return v; },
-                                 [&](Wire const &w) { return value(w); }},
-                      s);
+  Value value(Signal const& s) const noexcept
+  {
+    return std::visit(
+      Overloaded{[](Value v) { return v; }, [&](Wire const& w) { return value(w); }}, s);
   }
 
   /// Set the value of a wire
-  void value(Wire const &w, Value value) {
+  void value(Wire const& w, Value value)
+  {
     auto [it, success] = values_.insert({w, value});
     assert(success);
   }
 
   /// Set the value of a signal
-  void value(Signal const &s, Value v) {
-    std::visit(Overloaded{[v](Value v2) { assert(v == v2); },
-                          [&, v](Wire const &w) { value(w, v); }},
-               s);
+  void value(Signal const& s, Value v)
+  {
+    std::visit(
+      Overloaded{[v](Value v2) { assert(v == v2); }, [&, v](Wire const& w) { value(w, v); }}, s);
   }
 
   /// Execute the instructions.  Returns true if we have updated some wire
   /// values.
-  bool execute() {
+  bool execute()
+  {
     bool done_anything = false;
-    for (auto const &instr : instrs_) {
+    for (auto const& instr : instrs_) {
       done_anything |= execute_instr(instr);
     }
 
@@ -268,15 +290,15 @@ private:
    * An instruction may not be executed if the incoming signals have not been
    * set yet.
    */
-  bool execute_instr(Instruction const &instr) {
+  bool execute_instr(Instruction const& instr)
+  {
     std::cout << instr << " # ";
 
     // First of all check there is something to do - i.e. that the destination
     // register has not been set already.
     Wire dest = instr.dest();
     if (has_value(dest)) {
-      std::cout << "already has value: " << dest << " = " << value(dest)
-                << "\n";
+      std::cout << "already has value: " << dest << " = " << value(dest) << "\n";
       return false;
     }
 
@@ -286,17 +308,13 @@ private:
     case Action::Not:
       return execute_single_src(instr, [](Value src) { return ~src; });
     case Action::And:
-      return execute_double_src(
-          instr, [](Value src1, Value src2) { return src1 & src2; });
+      return execute_double_src(instr, [](Value src1, Value src2) { return src1 & src2; });
     case Action::Or:
-      return execute_double_src(
-          instr, [](Value src1, Value src2) { return src1 | src2; });
+      return execute_double_src(instr, [](Value src1, Value src2) { return src1 | src2; });
     case Action::LShift:
-      return execute_double_src(
-          instr, [](Value src1, Value src2) { return src1 << src2; });
+      return execute_double_src(instr, [](Value src1, Value src2) { return src1 << src2; });
     case Action::RShift:
-      return execute_double_src(
-          instr, [](Value src1, Value src2) { return src1 >> src2; });
+      return execute_double_src(instr, [](Value src1, Value src2) { return src1 >> src2; });
     }
 
     return false;
@@ -307,8 +325,8 @@ private:
    *  \param  fn    How to modify the source value to the dest.
    *  \return       True if we executed the function.
    */
-  bool execute_single_src(Instruction const &instr,
-                          std::function<Value(Value)> fn) {
+  bool execute_single_src(Instruction const& instr, std::function<Value(Value)> fn)
+  {
     Wire dest = instr.dest();
     Signal src = instr.src1();
     if (has_value(src)) {
@@ -326,8 +344,8 @@ private:
    *  \param  fn    How to modify the source values to the dest.
    *  \return       True if we executed the function.
    */
-  bool execute_double_src(Instruction const &instr,
-                          std::function<Value(Value, Value)> fn) {
+  bool execute_double_src(Instruction const& instr, std::function<Value(Value, Value)> fn)
+  {
     Wire dest = instr.dest();
     Signal src1 = instr.src1();
     Signal src2 = instr.src2();
@@ -345,7 +363,8 @@ private:
   Instructions instrs_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   VM vm;
 
   // Parse the input
@@ -365,7 +384,8 @@ int main(int argc, char **argv) {
   std::cout << "a = ";
   if (!vm.has_value(a)) {
     std::cout << "UNSET\n";
-  } else {
+  }
+  else {
     std::cout << vm.value(a) << "\n";
   }
 

@@ -9,7 +9,8 @@
 
 bool illegal_char(char c) { return c == 'i' || c == 'l' || c == 'o'; }
 
-void pre_advance_password(std::string &s) {
+void pre_advance_password(std::string& s)
+{
   std::string::size_type pos = 0;
   while (pos < s.length() && !illegal_char(s[pos])) {
     ++pos;
@@ -23,14 +24,16 @@ void pre_advance_password(std::string &s) {
   }
 }
 
-void advance_password(std::string &s) {
+void advance_password(std::string& s)
+{
   auto pos = s.length() - 1;
   while (true) {
     if (s[pos] == 'z') {
       assert(pos != 0);
       s[pos] = 'a';
       pos -= 1;
-    } else {
+    }
+    else {
       ++s[pos];
       if (illegal_char(s[pos])) {
         ++s[pos];
@@ -40,7 +43,8 @@ void advance_password(std::string &s) {
   }
 }
 
-bool valid_password(std::string const &s) {
+bool valid_password(std::string const& s)
+{
   unsigned double_count = 0;
   bool run = false;
   char last2 = '\0';
@@ -48,7 +52,8 @@ bool valid_password(std::string const &s) {
   for (auto c : s) {
     if (c == last && last2 != c) {
       ++double_count;
-    } else if (c == last + 1 && c == last2 + 2) {
+    }
+    else if (c == last + 1 && c == last2 + 2) {
       run = true;
     }
     last2 = last;
@@ -58,7 +63,8 @@ bool valid_password(std::string const &s) {
   return double_count >= 2 && run;
 }
 
-std::string next_password(std::string const &s) {
+std::string next_password(std::string const& s)
+{
   std::string result = s;
   pre_advance_password(result);
   do {
@@ -67,11 +73,11 @@ std::string next_password(std::string const &s) {
   return result;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   for (std::string line; std::getline(std::cin, line);) {
     std::string next = next_password(line);
-    std::cout << "Current password: " << line << "; Next password: " << next
-              << "\n";
+    std::cout << "Current password: " << line << "; Next password: " << next << "\n";
   }
   return 0;
 }

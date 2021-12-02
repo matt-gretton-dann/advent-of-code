@@ -9,55 +9,56 @@
 #include <string>
 #include <tuple>
 
-enum class Token : char {
-  Eof,
-  Number,
-  LParens = '(',
-  RParens = ')',
-  Add = '+',
-  Multiply = '*'
-};
+enum class Token : char { Eof, Number, LParens = '(', RParens = ')', Add = '+', Multiply = '*' };
 using Value = unsigned long;
 
-struct Parser {
-  Parser(std::string const &s) : expr_(s), pos_(0) { skip_whitespace(); }
+struct Parser
+{
+  Parser(std::string const& s) : expr_(s), pos_(0) { skip_whitespace(); }
 
   Value evaluate() { return multop(); }
 
 private:
-  Value addop() {
+  Value addop()
+  {
     auto value = primary();
     do {
       if (peek() == Token::Add) {
         chew(Token::Add);
         value += primary();
-      } else {
+      }
+      else {
         return value;
       }
     } while (true);
   }
 
-  Value multop() {
+  Value multop()
+  {
     auto value = addop();
     do {
       if (peek() == Token::Multiply) {
         chew(Token::Multiply);
         value *= addop();
-      } else {
+      }
+      else {
         return value;
       }
     } while (true);
   }
 
-  Value primary() {
+  Value primary()
+  {
     if (peek() == Token::LParens) {
       chew(Token::LParens);
       Value value = evaluate();
       chew(Token::RParens);
       return value;
-    } else if (peek() == Token::Number) {
+    }
+    else if (peek() == Token::Number) {
       return chew_number();
-    } else {
+    }
+    else {
       std::cout << "expr_ = " << expr_ << "\n";
       std::cout << "pos_ = " << pos_ << "\n";
       std::cout << "End = " << expr_.substr(pos_) << "\n";
@@ -65,7 +66,8 @@ private:
     }
   }
 
-  Token peek() {
+  Token peek()
+  {
     if (pos_ == expr_.size()) {
       return Token::Eof;
     }
@@ -98,7 +100,8 @@ private:
     }
   }
 
-  void chew(Token tok) {
+  void chew(Token tok)
+  {
     assert(peek() == tok);
     switch (tok) {
     case Token::LParens:
@@ -113,13 +116,15 @@ private:
     }
   }
 
-  void skip_whitespace() {
+  void skip_whitespace()
+  {
     while (pos_ < expr_.size() && expr_[pos_] == ' ') {
       ++pos_;
     }
   }
 
-  Value chew_number() {
+  Value chew_number()
+  {
     assert(peek() == Token::Number);
 
     std::size_t len = 0;
@@ -133,7 +138,8 @@ private:
   std::string::size_type pos_;
 };
 
-int main(void) {
+int main(void)
+{
   std::string line;
   Value result = 0;
   while (std::getline(std::cin, line)) {

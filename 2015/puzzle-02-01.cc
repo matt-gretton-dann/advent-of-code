@@ -3,11 +3,13 @@
 #include <iostream>
 #include <string>
 
-struct Box {
+struct Box
+{
   /** Construct box.
    *  \param s String representation of dimensions 'lxwxh'
    */
-  Box(std::string const &s) {
+  Box(std::string const& s)
+  {
     std::size_t pos = 0;
     l_ = std::stoul(s, &pos, 10);
     assert(s[pos] == 'x');
@@ -20,7 +22,8 @@ struct Box {
   }
 
   // How much paper does this box need?
-  unsigned long paper_needed() const {
+  unsigned long paper_needed() const
+  {
     unsigned long s1 = l_ * w_;
     unsigned long s2 = w_ * h_;
     unsigned long s3 = h_ * l_;
@@ -32,7 +35,8 @@ struct Box {
   unsigned long h_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   unsigned long total = 0;
   for (std::string line; std::getline(std::cin, line);) {
     Box b(line);

@@ -6,10 +6,13 @@
 #include <regex>
 #include <string>
 
-template <std::size_t L> struct Buffer {
+template<std::size_t L>
+struct Buffer
+{
   Buffer() {}
 
-  bool add_value(std::string const &s) {
+  bool add_value(std::string const& s)
+  {
     unsigned long i = std::stoul(s);
     auto size = buf_.size();
     if (size == L && !valid(i)) {
@@ -23,7 +26,8 @@ template <std::size_t L> struct Buffer {
   }
 
 private:
-  bool valid(unsigned long v) const {
+  bool valid(unsigned long v) const
+  {
     assert(buf_.size() == L);
     for (auto i = buf_.begin(); i != buf_.end(); ++i) {
       auto j = i;
@@ -41,7 +45,8 @@ private:
   std::list<unsigned long> buf_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Buffer<25> buf;
   for (std::string line; std::getline(std::cin, line);) {
     if (!buf.add_value(line)) {

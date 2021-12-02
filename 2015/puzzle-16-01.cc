@@ -22,7 +22,8 @@ static const InfoMap the_real_aunt_sue({{"children", 3},
                                         {"cars", 2},
                                         {"perfumes", 1}});
 
-bool matches_sue(std::string const &s) {
+bool matches_sue(std::string const& s)
+{
   assert(s.substr(0, 4) == "Sue ");
   std::size_t pos = 4;
   std::size_t len = 0;
@@ -34,7 +35,8 @@ bool matches_sue(std::string const &s) {
   while (pos < s.size()) {
     if (s[pos] == ' ' || s[pos] == ',') {
       ++pos;
-    } else {
+    }
+    else {
       auto colon = s.find(':', pos);
       assert(colon != std::string::npos);
       std::string name = s.substr(pos, colon - pos);
@@ -57,7 +59,8 @@ bool matches_sue(std::string const &s) {
   return true;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::string line;
   while (std::getline(std::cin, line)) {
     if (matches_sue(line)) {

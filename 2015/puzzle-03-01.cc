@@ -4,18 +4,19 @@
 #include <set>
 #include <string>
 
-struct Pos {
+struct Pos
+{
   Pos(int x, int y) : x_(x), y_(y) {}
 
-  bool operator<(Pos const &rhs) const noexcept {
+  bool operator<(Pos const& rhs) const noexcept
+  {
     return x_ < rhs.x_ || (x_ == rhs.x_ && y_ < rhs.y_);
   }
 
-  bool operator==(Pos const &rhs) const noexcept {
-    return x_ == rhs.x_ && y_ == rhs.y_;
-  }
+  bool operator==(Pos const& rhs) const noexcept { return x_ == rhs.x_ && y_ == rhs.y_; }
 
-  void move(char c) {
+  void move(char c)
+  {
     switch (c) {
     case '>':
       ++x_;
@@ -39,7 +40,8 @@ struct Pos {
   int y_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   for (std::string line; std::getline(std::cin, line);) {
     std::set<Pos> visited;
     Pos santa(0, 0);

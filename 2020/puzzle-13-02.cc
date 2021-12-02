@@ -12,9 +12,10 @@ using Time = unsigned long;
 using IDPair = std::pair<Time, Time>;
 using IDVector = std::vector<IDPair>;
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::string line;
-  std::getline(std::cin, line); // Ignore first line
+  std::getline(std::cin, line);  // Ignore first line
 
   std::string buses;
   std::getline(std::cin, buses);
@@ -26,7 +27,8 @@ int main(int argc, char **argv) {
     if (buses[pos] == ',') {
       ++pos;
       continue;
-    } else if (buses[pos] == 'x') {
+    }
+    else if (buses[pos] == 'x') {
       ++offset;
       ++pos;
       continue;
@@ -43,12 +45,11 @@ int main(int argc, char **argv) {
   // Make assumption that all bus IDs are co-prime.
   Time t = 0;
   Time t_incr = 1;
-  for (auto const &bus : ids) {
+  for (auto const& bus : ids) {
     while ((t + bus.second) % bus.first != 0) {
       t += t_incr;
     }
-    std::cout << "Bus #" << bus.first << " at offset " << bus.second
-              << " t = " << t << "\n";
+    std::cout << "Bus #" << bus.first << " at offset " << bus.second << " t = " << t << "\n";
     t_incr *= bus.first;
   }
   return 0;

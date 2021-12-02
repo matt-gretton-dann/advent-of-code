@@ -14,11 +14,11 @@ constexpr Quantity total = 150;
 
 using Quantities = std::vector<Quantity>;
 
-template <typename Fn1, typename Fn2>
-unsigned count_combinations(Quantities::const_iterator it,
-                            Quantities::const_iterator end, Quantity amount,
-                            unsigned depth, Fn1 base_result,
-                            unsigned init_addend, Fn2 adder) {
+template<typename Fn1, typename Fn2>
+unsigned count_combinations(Quantities::const_iterator it, Quantities::const_iterator end,
+                            Quantity amount, unsigned depth, Fn1 base_result, unsigned init_addend,
+                            Fn2 adder)
+{
   // We have no room for this container
   std::cout << std::string(depth, ' ') << *it << ": " << amount;
   if (amount < *it) {
@@ -36,45 +36,42 @@ unsigned count_combinations(Quantities::const_iterator it,
   amount -= *it;
   auto result = init_addend;
   while (++it != end) {
-    auto child_score = count_combinations(it, end, amount, depth + 1,
-                                          base_result, init_addend, adder);
+    auto child_score =
+      count_combinations(it, end, amount, depth + 1, base_result, init_addend, adder);
     result = adder(result, child_score);
   }
-  std::cout << std::string(depth, ' ') << "Recursion result: " << result
-            << "\n";
+  std::cout << std::string(depth, ' ') << "Recursion result: " << result << "\n";
   return result;
 }
 
-template <typename Fn1, typename Fn2>
-unsigned count_combinations(Quantities const &containers, Quantity amount,
-                            Fn1 base_result, unsigned init_addend, Fn2 adder) {
+template<typename Fn1, typename Fn2>
+unsigned count_combinations(Quantities const& containers, Quantity amount, Fn1 base_result,
+                            unsigned init_addend, Fn2 adder)
+{
   unsigned result = init_addend;
   for (auto it = containers.begin(); it != containers.end(); ++it) {
-    result = adder(result, count_combinations(it, containers.end(), total, 0,
-                                              base_result, init_addend, adder));
+    result = adder(
+      result, count_combinations(it, containers.end(), total, 0, base_result, init_addend, adder));
   }
   return result;
 }
 
-unsigned find_shortest_combination(Quantities const &containers) {
+unsigned find_shortest_combination(Quantities const& containers)
+{
   return count_combinations(
-      containers, total, [](unsigned depth) { return depth; }, UINT_MAX,
-      [](unsigned current, unsigned child_score) {
-        return std::min(current, child_score);
-      });
+    containers, total, [](unsigned depth) { return depth; }, UINT_MAX,
+    [](unsigned current, unsigned child_score) { return std::min(current, child_score); });
 }
 
-unsigned count_min_length_combinations(Quantities const &containers,
-                                       unsigned expected_depth) {
+unsigned count_min_length_combinations(Quantities const& containers, unsigned expected_depth)
+{
   return count_combinations(
-      containers, total,
-      [expected_depth](unsigned depth) { return depth == expected_depth; }, 0,
-      [](unsigned current, unsigned child_score) {
-        return current + child_score;
-      });
+    containers, total, [expected_depth](unsigned depth) { return depth == expected_depth; }, 0,
+    [](unsigned current, unsigned child_score) { return current + child_score; });
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::string line;
   Quantities containers;
   while (std::getline(std::cin, line)) {

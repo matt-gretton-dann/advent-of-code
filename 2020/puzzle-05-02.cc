@@ -15,8 +15,9 @@
  * We don't need to keep a record of high at all so the original solution
  * was over enthusiastic.
  */
-template <unsigned L2, char LOWER, char UPPER>
-unsigned find_pos(std::string const &s) {
+template<unsigned L2, char LOWER, char UPPER>
+unsigned find_pos(std::string const& s)
+{
   assert(s.length() == L2);
   unsigned low = 0;
   unsigned width = 1 << (L2 - 1);
@@ -25,7 +26,8 @@ unsigned find_pos(std::string const &s) {
     assert(width != 0);
     if (c == UPPER) {
       low = low + width;
-    } else {
+    }
+    else {
       assert(c == LOWER);
     }
 
@@ -40,8 +42,9 @@ unsigned find_pos(std::string const &s) {
  *  \tparam L2R log 2 number of rows
  *  \tparam L2C log 2 number of columns
  */
-template <unsigned L2R, unsigned L2C> struct Seat {
-
+template<unsigned L2R, unsigned L2C>
+struct Seat
+{
   /** \brief   Construct the seat.
    *  \param s String representing seat location, must be L2R + L2C chars.
    *
@@ -52,19 +55,19 @@ template <unsigned L2R, unsigned L2C> struct Seat {
    *
    * Should have used initialiser lists.
    */
-  Seat(std::string const &s)
+  Seat(std::string const& s)
       : row_(find_pos<L2R, 'F', 'B'>(s.substr(0, L2R))),
-        col_(find_pos<L2C, 'L', 'R'>(s.substr(L2R, L2C))) {
+        col_(find_pos<L2C, 'L', 'R'>(s.substr(L2R, L2C)))
+  {
     assert(s.length() == L2R + L2C);
-    std::cout << s << ": row " << row_ << ", column " << col_ << ", seat ID "
-              << id() << ".\n";
+    std::cout << s << ": row " << row_ << ", column " << col_ << ", seat ID " << id() << ".\n";
   }
 
   /** Get seat ID.  */
   unsigned id() const noexcept { return row_ * (1 << L2C) + col_; }
 
-  unsigned row_; ///< Seat row
-  unsigned col_; ///< Seat column
+  unsigned row_;  ///< Seat row
+  unsigned col_;  ///< Seat column
 };
 
 /** \brief main
@@ -73,11 +76,12 @@ template <unsigned L2R, unsigned L2C> struct Seat {
  *
  * Could have initialised the array better.
  */
-int main(int argc, char **argv) {
-  constexpr unsigned l2r = 7;                   ///< Log 2 number of rows
-  constexpr unsigned l2c = 3;                   ///< Log 2 number of columns
-  constexpr unsigned max_id = 1 << (l2r + l2c); ///< Max ID.
-  std::array<bool, max_id> id_present = {};     ///< Is the ID present?
+int main(int argc, char** argv)
+{
+  constexpr unsigned l2r = 7;                    ///< Log 2 number of rows
+  constexpr unsigned l2c = 3;                    ///< Log 2 number of columns
+  constexpr unsigned max_id = 1 << (l2r + l2c);  ///< Max ID.
+  std::array<bool, max_id> id_present = {};      ///< Is the ID present?
 
   // Read the lines in marking IDs that are present
   for (std::string line; std::getline(std::cin, line);) {

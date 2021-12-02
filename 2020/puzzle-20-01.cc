@@ -14,8 +14,10 @@ using Hash = unsigned long;
 
 enum Edge { Top, Left, Bottom, Right };
 
-struct Picture {
-  Picture(std::string id, std::istream &is) : in_use_(false) {
+struct Picture
+{
+  Picture(std::string id, std::istream& is) : in_use_(false)
+  {
     assert(id.substr(0, 5) == "Tile ");
     id_ = std::stoul(id.substr(5));
     std::string line;
@@ -27,20 +29,22 @@ struct Picture {
     }
   }
 
-  Picture(Picture const &) = delete;
-  Picture &operator=(Picture const &) = delete;
-  Picture(Picture &&) = default;
-  Picture &operator=(Picture &&) = default;
+  Picture(Picture const&) = delete;
+  Picture& operator=(Picture const&) = delete;
+  Picture(Picture&&) = default;
+  Picture& operator=(Picture&&) = default;
 
-  void flip() {
-    for (auto &r : rows_) {
+  void flip()
+  {
+    for (auto& r : rows_) {
       std::reverse(r.begin(), r.end());
     }
   }
 
-  void rotate() {
+  void rotate()
+  {
     std::vector<std::string> copy(rows_.size());
-    for (auto const &r : rows_) {
+    for (auto const& r : rows_) {
       std::size_t off = copy.size();
       assert(r.size() == copy.size());
       for (auto c : r) {
@@ -51,7 +55,8 @@ struct Picture {
     rows_ = copy;
   }
 
-  Hash hash(Edge edge) const {
+  Hash hash(Edge edge) const
+  {
     unsigned x = (edge == Edge::Right) ? rows_[0].size() - 1 : 0;
     unsigned y = (edge == Edge::Bottom) ? rows_.size() - 1 : 0;
     unsigned dx = (edge == Edge::Top || edge == Edge::Bottom) ? 1 : 0;
@@ -70,11 +75,9 @@ struct Picture {
 
   Id id() const noexcept { return id_; }
 
-  bool operator<(Picture const &pict) const noexcept { return id_ < pict.id_; }
+  bool operator<(Picture const& pict) const noexcept { return id_ < pict.id_; }
 
-  bool operator==(Picture const &pict) const noexcept {
-    return id_ == pict.id_;
-  }
+  bool operator==(Picture const& pict) const noexcept { return id_ == pict.id_; }
 
   bool in_use() const noexcept { return in_use_; }
   void use() noexcept { in_use_ = true; }
@@ -90,14 +93,16 @@ using Pictures = std::map<Id, Picture>;
 using HashMap = std::multimap<Hash, Id>;
 using Array = std::map<std::pair<unsigned, unsigned>, Id>;
 
-struct PictureArray {
-  void add(Picture &&pic) {
+struct PictureArray
+{
+  void add(Picture&& pic)
+  {
     auto id = pic.id();
     auto [it, success] = pictures_.insert(std::make_pair(id, std::move(pic)));
     assert(success);
 
     // Set up hash -> ID mapping
-    Picture &picture = it->second;
+    Picture& picture = it->second;
     for (unsigned r = 0; r < 4; ++r) {
       for (unsigned f = 0; f < 2; ++f) {
         hash_map_.insert({picture.hash(Edge::Top), picture.id()});
@@ -107,13 +112,13 @@ struct PictureArray {
     }
   }
 
-  Id solve() {
+  Id solve()
+  {
     assert(pictures_.size() == 9 || pictures_.size() == 144);
-    for (auto &kv : pictures_) {
+    for (auto& kv : pictures_) {
       if (try_position(0, 0, kv.second)) {
         print_ids();
-        return piece(0, 0).id() * piece(width() - 1, 0).id() *
-               piece(0, height() - 1).id() *
+        return piece(0, 0).id() * piece(width() - 1, 0).id() * piece(0, height() - 1).id() *
                piece(width() - 1, height() - 1).id();
       }
     }
@@ -123,7 +128,8 @@ struct PictureArray {
   }
 
 private:
-  bool try_position(unsigned x, unsigned y, Picture &pict) {
+  bool try_position(unsigned x, unsigned y, Picture& pict)
+  {
     if (pict.in_use()) {
       return false;
     }
@@ -180,7 +186,8 @@ private:
     return false;
   }
 
-  void print_ids() const {
+  void print_ids() const
+  {
     for (unsigned y = 0; y < height(); ++y) {
       for (unsigned x = 0; x < width(); ++x) {
         std::cout << " " << piece(x, y).id();
@@ -189,20 +196,24 @@ private:
     }
   }
 
-  Picture const &piece(unsigned x, unsigned y) const {
-    auto const &it = array_.find({x, y});
+  Picture const& piece(unsigned x, unsigned y) const
+  {
+    auto const& it = array_.find({x, y});
     assert(it != array_.end());
-    auto const &itp = pictures_.find(it->second);
+    auto const& itp = pictures_.find(it->second);
     assert(itp != pictures_.end());
     return itp->second;
   }
 
-  unsigned width() const noexcept {
+  unsigned width() const noexcept
+  {
     if (pictures_.size() == 9) {
       return 3;
-    } else if (pictures_.size() == 144) {
+    }
+    else if (pictures_.size() == 144) {
       return 12;
-    } else {
+    }
+    else {
       assert(false);
     }
 
@@ -216,7 +227,8 @@ private:
   Array array_;
 };
 
-int main(void) {
+int main(void)
+{
   PictureArray pictures_;
 
   std::string line;

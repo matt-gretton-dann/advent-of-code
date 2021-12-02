@@ -9,7 +9,8 @@
 
 using Jolt = unsigned long;
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   std::vector<Jolt> jolts;
   for (std::string line; std::getline(std::cin, line);) {
     jolts.push_back(std::stoul(line));
@@ -26,7 +27,6 @@ int main(int argc, char **argv) {
   // and the gap to our voltage
   ++gaps[3];
 
-  std::cout << gaps[1] << " * " << gaps[3] << " = " << gaps[1] * gaps[3]
-            << "\n";
+  std::cout << gaps[1] << " * " << gaps[3] << " = " << gaps[1] * gaps[3] << "\n";
   return 0;
 }

@@ -6,10 +6,13 @@
 #include <regex>
 #include <string>
 
-template <std::size_t L> struct Buffer {
+template<std::size_t L>
+struct Buffer
+{
   Buffer() {}
 
-  bool add_value(std::string const &s) {
+  bool add_value(std::string const& s)
+  {
     unsigned long i = std::stoul(s);
     bool result = true;
     auto size = buf_.size();
@@ -20,7 +23,8 @@ template <std::size_t L> struct Buffer {
     return result;
   }
 
-  unsigned long get_weakness(unsigned long v) {
+  unsigned long get_weakness(unsigned long v)
+  {
     std::size_t sum_begin = 0;
     std::size_t sum_end = 0;
     unsigned long sum = 0;
@@ -36,16 +40,15 @@ template <std::size_t L> struct Buffer {
         ++sum_begin;
       }
     }
-    std::cout << "sum_begin = " << sum_begin << " sum_end = " << sum_end
-              << "\n";
-    std::vector<unsigned long> vec(buf_.begin() + sum_begin,
-                                   buf_.begin() + sum_end);
+    std::cout << "sum_begin = " << sum_begin << " sum_end = " << sum_end << "\n";
+    std::vector<unsigned long> vec(buf_.begin() + sum_begin, buf_.begin() + sum_end);
     std::sort(vec.begin(), vec.end());
     return vec[0] + vec[vec.size() - 1];
   }
 
 private:
-  bool valid(unsigned long v) const {
+  bool valid(unsigned long v) const
+  {
     assert(buf_.size() >= L);
     for (auto i = buf_.size() - 25; i != buf_.size(); ++i) {
       for (auto j = i + 1; j != buf_.size(); ++j) {
@@ -60,7 +63,8 @@ private:
   std::vector<unsigned long> buf_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Buffer<25> buf;
   unsigned long invalid = 0;
   for (std::string line; std::getline(std::cin, line);) {

@@ -13,11 +13,13 @@
 constexpr unsigned mod = 20201227;
 constexpr unsigned initial_subject = 7;
 
-unsigned lcg(unsigned i, unsigned subject) {
+unsigned lcg(unsigned i, unsigned subject)
+{
   return ((unsigned long)i * (unsigned long)subject) % mod;
 }
 
-unsigned find_loop_length(unsigned pk) {
+unsigned find_loop_length(unsigned pk)
+{
   unsigned v = 1;
   unsigned loop = 0;
   while (v != pk) {
@@ -28,7 +30,8 @@ unsigned find_loop_length(unsigned pk) {
   return loop;
 }
 
-unsigned apply(unsigned pk, unsigned loop_size) {
+unsigned apply(unsigned pk, unsigned loop_size)
+{
   unsigned v = 1;
   for (unsigned i = 0; i < loop_size; ++i) {
     v = lcg(v, pk);
@@ -37,7 +40,8 @@ unsigned apply(unsigned pk, unsigned loop_size) {
   return v;
 }
 
-int main(void) {
+int main(void)
+{
   std::string line;
   std::getline(std::cin, line);
   unsigned pk1 = std::stoul(line);

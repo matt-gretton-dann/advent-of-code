@@ -10,10 +10,12 @@
 using Data = std::uint64_t;
 using Mem = std::vector<Data>;
 
-struct Computer {
+struct Computer
+{
   Computer() : set_(0), clear_(0), mem_() {}
 
-  void add_instruction(std::string const &s) {
+  void add_instruction(std::string const& s)
+  {
     static const std::regex re("mem\\[(\\d+)\\] = (\\d+)");
     std::smatch m;
 
@@ -28,11 +30,12 @@ struct Computer {
       }
       std::cout << "mask set: " << std::hex << set_ << "\n";
       std::cout << "mask clear: " << std::hex << clear_ << "\n";
-    } else if (std::regex_search(s, m, re)) {
+    }
+    else if (std::regex_search(s, m, re)) {
       Data loc = std::stoul(m.str(1));
       Data value = std::stoul(m.str(2));
-      std::cout << "mem[" << std::dec << loc << " = (" << value << " | " << set_
-                << ") & " << clear_ << " = ";
+      std::cout << "mem[" << std::dec << loc << " = (" << value << " | " << set_ << ") & " << clear_
+                << " = ";
       value = (value | set_) & clear_;
       std::cout << value << "\n";
       if (mem_.size() <= loc) {
@@ -42,7 +45,8 @@ struct Computer {
     }
   }
 
-  Data mem_sum() const noexcept {
+  Data mem_sum() const noexcept
+  {
     Data r = 0;
     for (auto v : mem_) {
       r += v;
@@ -55,7 +59,8 @@ struct Computer {
   Mem mem_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   Computer c;
 
   std::string line;

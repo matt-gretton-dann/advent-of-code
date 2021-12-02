@@ -15,10 +15,11 @@ using Weight = unsigned;
 using EdgeWeights = std::map<Edge, Weight>;
 using NodeQueue = std::list<Node>;
 
-std::ostream &operator<<(std::ostream &os, NodeQueue const &q) {
+std::ostream& operator<<(std::ostream& os, NodeQueue const& q)
+{
   std::string p = "";
   os << "[";
-  for (auto const &n : q) {
+  for (auto const& n : q) {
     os << p << n;
     p = ", ";
   }
@@ -26,10 +27,12 @@ std::ostream &operator<<(std::ostream &os, NodeQueue const &q) {
   return os;
 }
 
-struct BagGraph {
+struct BagGraph
+{
   BagGraph() { nodes_.insert({"", false}); }
 
-  void add_edges(std::string const &s) {
+  void add_edges(std::string const& s)
+  {
     static const auto prefix_re = std::regex("([a-z ]+) bags? contain ");
     static const auto suffix_re = std::regex("(\\d)+ ([a-z ]+) bags?[,.]\\s*");
     static const auto empty_str = std::string("no other bags.");
@@ -49,7 +52,8 @@ struct BagGraph {
         Edge e = std::make_pair("", n2);
         edges_.insert({e, 0});
         std::cout << "<none> -> " << n2 << ": 0\n";
-      } else {
+      }
+      else {
         std::smatch suffix_m;
         if (!std::regex_search(suffix, suffix_m, suffix_re)) {
           std::cout << "Failed to match: " << suffix << "\n";
@@ -67,7 +71,8 @@ struct BagGraph {
     }
   }
 
-  unsigned num_containers(Node const &n) {
+  unsigned num_containers(Node const& n)
+  {
     NodeQueue queue;
     // Initial population of queue:
     populate_queue(queue, n);
@@ -84,7 +89,8 @@ struct BagGraph {
         populate_queue(queue, n1);
         ++visited;
         std::cout << "Updated queue: " << queue << "\n";
-      } else {
+      }
+      else {
         std::cout << "Already visited\n";
       }
     }
@@ -93,8 +99,9 @@ struct BagGraph {
   }
 
 private:
-  void populate_queue(NodeQueue &queue, Node const &n) {
-    for (auto const &kv : edges_) {
+  void populate_queue(NodeQueue& queue, Node const& n)
+  {
+    for (auto const& kv : edges_) {
       if (kv.first.first == n && !nodes_[kv.first.second]) {
         queue.push_back(kv.first.second);
       }
@@ -105,7 +112,8 @@ private:
   Nodes nodes_;
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
   BagGraph bg;
   for (std::string line; std::getline(std::cin, line);) {
     bg.add_edges(line);
