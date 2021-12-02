@@ -1,19 +1,17 @@
 #include <algorithm>
-#include <cassert>
 #include <iostream>
 #include <set>
-#include <string>
 
 struct Pos
 {
-  Pos(int x, int y) : x_(x), y_(y) {}
+  Pos(int x, int y) : x_(x), y_(y) {}  // NOLINT(bugprone-easily-swappable-parameters)
 
-  bool operator<(Pos const& rhs) const noexcept
+  auto operator<(Pos const& rhs) const noexcept -> bool
   {
     return x_ < rhs.x_ || (x_ == rhs.x_ && y_ < rhs.y_);
   }
 
-  bool operator==(Pos const& rhs) const noexcept { return x_ == rhs.x_ && y_ == rhs.y_; }
+  auto operator==(Pos const& rhs) const noexcept -> bool { return x_ == rhs.x_ && y_ == rhs.y_; }
 
   void move(char c) noexcept
   {
@@ -40,25 +38,25 @@ struct Pos
   int y_;
 };
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   for (std::string line; std::getline(std::cin, line);) {
     std::set<Pos> visited;
     Pos santa(0, 0);
-    Pos robo_santa(0, 0);
+    Pos robot_santa(0, 0);
     visited.insert(santa);
-    visited.insert(robo_santa);
-    bool do_robo = false;
+    visited.insert(robot_santa);
+    bool do_robot = false;
     for (auto c : line) {
-      if (do_robo) {
-        robo_santa.move(c);
-        visited.insert(robo_santa);
+      if (do_robot) {
+        robot_santa.move(c);
+        visited.insert(robot_santa);
       }
       else {
         santa.move(c);
         visited.insert(santa);
       }
-      do_robo = !do_robo;
+      do_robot = !do_robot;
     }
     std::cout << "Houses visited = " << visited.size() << "\n";
   }

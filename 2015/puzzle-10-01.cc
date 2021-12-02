@@ -1,13 +1,8 @@
-#include <cassert>
 #include <functional>
 #include <iostream>
-#include <map>
-#include <regex>
-#include <set>
 #include <string>
-#include <variant>
 
-std::string look_and_say(std::string const& s)
+auto look_and_say(std::string const& s) -> std::string
 {
   std::string result;
   for (std::string::size_type i = 0; i < s.length();) {
@@ -23,7 +18,7 @@ std::string look_and_say(std::string const& s)
   return result;
 }
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   for (std::string line; std::getline(std::cin, line);) {
     std::cout << "Application 0, length = " << line.length() << ": " << line << "\n";

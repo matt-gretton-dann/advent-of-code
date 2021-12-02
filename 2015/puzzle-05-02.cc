@@ -1,21 +1,19 @@
 #include <algorithm>
-#include <cassert>
 #include <iostream>
-#include <set>
 #include <string>
 
 // Check if a string is nice:
 // Nice strings have:
 //   repeated double letters - but not overlapping
 //   repeated letters separated by one other.
-bool is_nice(std::string const& s) noexcept
+auto is_nice(std::string const& s) noexcept -> bool
 {
   bool repeated_pair = false;
   bool repeated_sep = false;
 
   std::cout << s;
   for (std::string::size_type i = 0; i < s.length() - 2; ++i) {
-    // Find whether the two characters starting at i are repeated in the rest of
+    // Find whether the two characters starting at `i` are repeated in the rest of
     // the string.  We don't have to look backwards as we will already have
     // scanned it.
     if (s.substr(i + 2).find(s.substr(i, 2)) != std::string::npos) {
@@ -35,11 +33,11 @@ bool is_nice(std::string const& s) noexcept
   return repeated_pair && repeated_sep;
 }
 
-int main(int argc, char** argv)
+auto main() -> int
 {
-  unsigned nice_strings;
+  unsigned nice_strings{0};
   for (std::string line; std::getline(std::cin, line);) {
-    nice_strings += is_nice(line);
+    nice_strings += is_nice(line) ? 1 : 0;
   }
   std::cout << nice_strings << '\n';
 

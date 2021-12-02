@@ -89,16 +89,16 @@ struct VM
   void add_instruction(Instruction const& i)
   {
     std::cout << i << "\n";
-    instrs_.push_back(i);
+    instructions_.push_back(i);
   }
 
   void execute()
   {
-    std::vector<bool> seen(instrs_.size(), false);
+    std::vector<bool> seen(instructions_.size(), false);
     while (!seen[pc_]) {
-      assert(pc_ < instrs_.size());
+      assert(pc_ < instructions_.size());
       seen[pc_] = true;
-      execute(instrs_[pc_]);
+      execute(instructions_[pc_]);
       ++pc_;
     }
     std::cout << "PC seen before: " << pc_ << "\n";
@@ -127,7 +127,7 @@ private:
     std::cout << "\n";
   }
 
-  Instructions instrs_;
+  Instructions instructions_;
   std::size_t pc_;
   Value acc_;
 };

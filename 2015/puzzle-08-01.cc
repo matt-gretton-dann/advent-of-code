@@ -1,14 +1,11 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
-#include <map>
-#include <regex>
 #include <string>
-#include <variant>
 
 enum class State { Begin, Normal, Escape, Hex1, Hex2, End };
 
-std::string unescape(std::string const& s)
+auto unescape(std::string const& s) -> std::string
 {
   std::string unescaped;
   static const std::string hex = "0123456789abcdef0123456789ABCDEF";
@@ -56,7 +53,7 @@ std::string unescape(std::string const& s)
       auto idx = hex.find(c);
       assert(idx != std::string::npos);
       byte = (byte << 4) + (idx & 0xf);
-      unescaped += (char)byte;
+      unescaped += static_cast<char>(byte);
       state = State::Normal;
       break;
     }
@@ -67,7 +64,7 @@ std::string unescape(std::string const& s)
   return unescaped;
 }
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   unsigned len = 0;
 

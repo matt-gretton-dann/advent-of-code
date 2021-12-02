@@ -1,13 +1,9 @@
-#include <cassert>
 #include <functional>
 #include <iostream>
-#include <map>
 #include <regex>
-#include <set>
 #include <string>
-#include <variant>
 
-int parse_numbers(std::string const& s)
+auto parse_numbers(std::string const& s) -> int
 {
   static const std::regex re("-?\\d+");
   std::string left = s;
@@ -21,7 +17,7 @@ int parse_numbers(std::string const& s)
   return acc;
 }
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   int acc = 0;
   for (std::string line; std::getline(std::cin, line);) {

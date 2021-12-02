@@ -2,16 +2,15 @@
 #include <cassert>
 #include <iostream>
 #include <regex>
-#include <set>
 #include <string>
 
 enum class Action { TurnOn, Toggle, TurnOff };
 using Point = std::pair<unsigned, unsigned>;
 struct Command
 {
-  Command(std::string const& s)
+  explicit Command(std::string const& s)
   {
-    const char* re = "(turn on|toggle|turn off)\\s(\\d+),(\\d+)\\sthrough\\s(\\d+),(\\d+)";
+    const char* re = R"((turn on|toggle|turn off)\s(\d+),(\d+)\sthrough\s(\d+),(\d+))";
     std::smatch m;
     if (!std::regex_search(s, m, std::regex(re))) {
       std::cerr << "Unable to interpret:" << s << "\n";
@@ -47,7 +46,7 @@ struct Array
   {
     for (unsigned i = 0; i < N; ++i) {
       for (unsigned j = 0; j < N; ++j) {
-        lights_[i][j] = 0;
+        lights_[i][j] = 0;  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
       }
     }
   }
@@ -63,14 +62,14 @@ struct Array
       for (unsigned j = command.bottom_left_.second; j <= command.top_right_.second; ++j) {
         switch (command.act_) {
         case Action::TurnOn:
-          ++lights_[i][j];
+          ++lights_[i][j];  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
           break;
         case Action::Toggle:
-          lights_[i][j] += 2;
+          lights_[i][j] += 2;  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
           break;
         case Action::TurnOff:
-          if (lights_[i][j] > 0) {
-            --lights_[i][j];
+          if (lights_[i][j] > 0) {  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+            --lights_[i][j];        // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
           }
           break;
         }
@@ -78,12 +77,12 @@ struct Array
     }
   }
 
-  unsigned brightness() const noexcept
+  [[nodiscard]] auto brightness() const noexcept -> unsigned
   {
     unsigned count = 0;
     for (unsigned i = 0; i < N; ++i) {
       for (unsigned j = 0; j < N; ++j) {
-        count += lights_[i][j];
+        count += lights_[i][j];  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
       }
     }
     return count;
@@ -95,23 +94,24 @@ struct Array
     unsigned max = 0;
     for (unsigned i = 0; i < N; ++i) {
       for (unsigned j = 0; j < N; ++j) {
-        if (lights_[i][j] > max) {
-          max = lights_[i][j];
+        if (lights_[i][j] > max) {  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+          max = lights_[i][j];      // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
         }
       }
     }
     std::cout << "P2\n" << N << " " << N << "\n" << max << "\n";
     for (unsigned i = 0; i < N; ++i) {
       for (unsigned j = 0; j < N; ++j) {
-        std::cout << lights_[i][j] << "\n";
+        std::cout << lights_[i][j]  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+                  << "\n";
       }
     }
   }
 
-  unsigned lights_[N][N];
+  unsigned lights_[N][N]{};  // NOLINT(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 };
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   Array<1000> arr;
   for (std::string line; std::getline(std::cin, line);) {

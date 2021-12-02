@@ -8,7 +8,7 @@ struct Box
   /** Construct box.
    *  \param s String representation of dimensions 'lxwxh'
    */
-  Box(std::string const& s)
+  explicit Box(std::string const& s)
   {
     std::size_t pos = 0;
     l_ = std::stoul(s, &pos, 10);
@@ -22,22 +22,22 @@ struct Box
   }
 
   // How much paper does this box need?
-  unsigned long paper_needed() const
+  [[nodiscard]] auto paper_needed() const -> std::uint64_t
   {
-    unsigned long s1 = l_ * w_;
-    unsigned long s2 = w_ * h_;
-    unsigned long s3 = h_ * l_;
+    std::uint64_t s1 = l_ * w_;
+    std::uint64_t s2 = w_ * h_;
+    std::uint64_t s3 = h_ * l_;
     return 2 * (s1 + s2 + s3) + std::min({s1, s2, s3});
   }
 
-  unsigned long l_;
-  unsigned long w_;
-  unsigned long h_;
+  std::uint64_t l_;
+  std::uint64_t w_;
+  std::uint64_t h_;
 };
 
-int main(int argc, char** argv)
+auto main() -> int
 {
-  unsigned long total = 0;
+  std::uint64_t total = 0;
   for (std::string line; std::getline(std::cin, line);) {
     Box b(line);
     auto amount = b.paper_needed();

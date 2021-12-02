@@ -1,13 +1,9 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
-#include <map>
-#include <regex>
-#include <set>
 #include <string>
-#include <variant>
 
-bool illegal_char(char c) { return c == 'i' || c == 'l' || c == 'o'; }
+auto illegal_char(char c) -> bool { return c == 'i' || c == 'l' || c == 'o'; }
 
 void pre_advance_password(std::string& s)
 {
@@ -43,7 +39,7 @@ void advance_password(std::string& s)
   }
 }
 
-bool valid_password(std::string const& s)
+auto valid_password(std::string const& s) -> bool
 {
   unsigned double_count = 0;
   bool run = false;
@@ -63,7 +59,7 @@ bool valid_password(std::string const& s)
   return double_count >= 2 && run;
 }
 
-std::string next_password(std::string const& s)
+auto next_password(std::string const& s) -> std::string
 {
   std::string result = s;
   pre_advance_password(result);
@@ -73,7 +69,7 @@ std::string next_password(std::string const& s)
   return result;
 }
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   for (std::string line; std::getline(std::cin, line);) {
     std::string next = next_password(line);

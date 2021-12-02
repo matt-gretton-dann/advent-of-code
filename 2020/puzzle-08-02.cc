@@ -104,20 +104,20 @@ struct VM
   void add_instruction(Instruction const& i)
   {
     std::cout << i << "\n";
-    instrs_.push_back(i);
+    instructions_.push_back(i);
   }
 
   bool execute()
   {
-    std::vector<bool> seen(instrs_.size(), false);
+    std::vector<bool> seen(instructions_.size(), false);
     acc_ = 0;
     pc_ = 0;
     while (!seen[pc_]) {
-      assert(pc_ < instrs_.size());
+      assert(pc_ < instructions_.size());
       seen[pc_] = true;
-      execute(instrs_[pc_]);
+      execute(instructions_[pc_]);
       ++pc_;
-      if (pc_ == instrs_.size()) {
+      if (pc_ == instructions_.size()) {
         std::cout << "Terminated\n";
         return true;
       }
@@ -128,13 +128,13 @@ struct VM
 
   void find_fix()
   {
-    for (std::size_t pos = 0; pos < instrs_.size(); ++pos) {
-      if (instrs_[pos].flip_jmp()) {
+    for (std::size_t pos = 0; pos < instructions_.size(); ++pos) {
+      if (instructions_[pos].flip_jmp()) {
         if (execute()) {
-          std::cout << "Success at instruction " << pos << ": " << instrs_[pos] << "\n";
+          std::cout << "Success at instruction " << pos << ": " << instructions_[pos] << "\n";
           return;
         }
-        instrs_[pos].flip_jmp();
+        instructions_[pos].flip_jmp();
       }
     }
   }
@@ -162,7 +162,7 @@ private:
     std::cout << "\n";
   }
 
-  Instructions instrs_;
+  Instructions instructions_;
   std::size_t pc_;
   Value acc_;
 };

@@ -1,12 +1,7 @@
-#include <cassert>
 #include <functional>
 #include <iostream>
-#include <map>
-#include <regex>
-#include <string>
-#include <variant>
 
-std::string escape(std::string const& s)
+auto escape(std::string const& s) -> std::string
 {
   std::string escaped;
   escaped += '"';
@@ -20,7 +15,7 @@ std::string escape(std::string const& s)
   return escaped;
 }
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   unsigned len = 0;
 

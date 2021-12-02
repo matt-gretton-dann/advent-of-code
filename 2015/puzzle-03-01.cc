@@ -1,19 +1,17 @@
 #include <algorithm>
-#include <cassert>
 #include <iostream>
 #include <set>
-#include <string>
 
 struct Pos
 {
-  Pos(int x, int y) : x_(x), y_(y) {}
+  Pos(int x, int y) : x_(x), y_(y) {}  // NOLINT(bugprone-easily-swappable-parameters)
 
-  bool operator<(Pos const& rhs) const noexcept
+  auto operator<(Pos const& rhs) const noexcept -> bool
   {
     return x_ < rhs.x_ || (x_ == rhs.x_ && y_ < rhs.y_);
   }
 
-  bool operator==(Pos const& rhs) const noexcept { return x_ == rhs.x_ && y_ == rhs.y_; }
+  auto operator==(Pos const& rhs) const noexcept -> bool { return x_ == rhs.x_ && y_ == rhs.y_; }
 
   void move(char c)
   {
@@ -40,7 +38,7 @@ struct Pos
   int y_;
 };
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   for (std::string line; std::getline(std::cin, line);) {
     std::set<Pos> visited;

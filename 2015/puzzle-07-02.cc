@@ -44,7 +44,7 @@ enum class Action {
 };
 
 /// Pretty-print action
-std::ostream& operator<<(std::ostream& os, Action act)
+auto operator<<(std::ostream& os, Action act) -> std::ostream&
 {
   switch (act) {
   case Action::Set:
@@ -74,7 +74,7 @@ using Wire = std::string;                  ///< Wire name (string)
 using Signal = std::variant<Value, Wire>;  ///< Either a wire or explicit value
 
 /// Outputter for a signal
-std::ostream& operator<<(std::ostream& os, Signal const& signal)
+auto operator<<(std::ostream& os, Signal const& signal) -> std::ostream&
 {
   return std::visit(
     [&os](auto&& arg) -> std::ostream& {
@@ -100,7 +100,7 @@ struct Instruction
    *    binop  := signal op signal '->' wire
    *    instr  := binop | not | set
    */
-  Instruction(std::string const& s)
+  explicit Instruction(std::string const& s)
   {
     if (parse_bin_op(s)) {
       return;
@@ -116,16 +116,16 @@ struct Instruction
   }
 
   /// Get action
-  Action action() const noexcept { return act_; }
+  [[nodiscard]] auto action() const noexcept -> Action { return act_; }
 
   /// Get the destination wire
-  Wire const& dest() const noexcept { return dest_; }
+  [[nodiscard]] auto dest() const noexcept -> Wire const& { return dest_; }
 
   /// Get the first (or only) source
-  Signal const& src1() const noexcept { return src1_; }
+  [[nodiscard]] auto src1() const noexcept -> Signal const& { return src1_; }
 
   /// Get the second source
-  Signal const& src2() const noexcept
+  [[nodiscard]] auto src2() const noexcept -> Signal const&
   {
     assert(act_ != Action::Set && act_ != Action::Not);
     return src2_;
@@ -133,7 +133,7 @@ struct Instruction
 
 private:
   /// Parse a <not> instruction.  Return true if successful.
-  bool parse_not(std::string const& s)
+  auto parse_not(std::string const& s) -> bool
   {
     if (s.substr(0, 4) == "NOT ") {
       std::string::size_type pos = 4;
@@ -146,7 +146,7 @@ private:
   }
 
   /// Parse a <bin_op> instruction.  Return true if successful.
-  bool parse_bin_op(std::string const& s)
+  auto parse_bin_op(std::string const& s) -> bool
   {
     static const std::regex re("^([[:lower:][:digit:]]+) ([[:upper:]]+) "
                                "([[:lower:][:digit:]]+) -> ([[:lower:]]+)");
@@ -181,7 +181,7 @@ private:
   ///
   /// Also used for the latter half of <not> parsing.  ACT tells you what is
   /// being parsed. Returns true if parsing successful.
-  bool parse_set(std::string const& s, Action act = Action::Set)
+  auto parse_set(std::string const& s, Action act = Action::Set) -> bool
   {
     static const std::regex re("^([[:lower:][:digit:]]+) -> ([[:lower:]]+)");
     std::smatch m;
@@ -196,25 +196,23 @@ private:
   }
 
   /// Make a Signal from a string.
-  Signal make_signal(std::string const& s)
+  static auto make_signal(std::string const& s) -> Signal
   {
-    if (std::isdigit(s[0])) {
+    if (std::isdigit(s[0]) == 1) {
       auto u = std::stoul(s, nullptr, 10);
       assert(u <= UINT16_MAX);
-      return Signal(static_cast<std::uint16_t>(u));
+      return {static_cast<std::uint16_t>(u)};
     }
-    else {
-      return Signal(s);
-    }
+    return {s};
   }
 
-  Action act_;          ///< Action
-  Wire dest_;           ///< Destination wire
-  Signal src1_, src2_;  ///< Source signals
+  Action act_{Action::Not};  ///< Action
+  Wire dest_;                ///< Destination wire
+  Signal src1_, src2_;       ///< Source signals
 };
 
 /// Outputter for an instruction.
-std::ostream& operator<<(std::ostream& os, Instruction const& instr)
+auto operator<<(std::ostream& os, Instruction const& instr) -> std::ostream&
 {
   os << instr.action() << " " << instr.dest() << ", " << instr.src1();
   if (instr.action() != Action::Set && instr.action() != Action::Not) {
@@ -230,27 +228,30 @@ using Instructions = std::vector<Instruction>;  ///< Instructions to execute
 struct VM
 {
   /// Add an instruction the the list we have
-  void add_instr(Instruction const& instr) { instrs_.push_back(instr); }
+  void add_instr(Instruction const& instr) { instructions_.push_back(instr); }
 
   /// Has this wire a known value?
-  bool has_value(Wire const& w) const noexcept { return values_.find(w) != values_.end(); }
+  [[nodiscard]] auto has_value(Wire const& w) const noexcept -> bool
+  {
+    return values_.find(w) != values_.end();
+  }
 
   /// Has this signal a known value?
-  bool has_value(Signal const& s) const noexcept
+  [[nodiscard]] auto has_value(Signal const& s) const noexcept -> bool
   {
     return std::visit(
-      Overloaded{[](Value v) { return true; }, [&](Wire const& w) { return has_value(w); }}, s);
+      Overloaded{[](Value /*v*/) { return true; }, [&](Wire const& w) { return has_value(w); }}, s);
   }
 
   /// Get the value on the wire
-  Value value(Wire const& w) const noexcept
+  [[nodiscard]] auto value(Wire const& w) const noexcept -> Value
   {
     assert(has_value(w));
     return values_.find(w)->second;
   }
 
   /// Get the value of a signal
-  Value value(Signal const& s) const noexcept
+  [[nodiscard]] auto value(Signal const& s) const noexcept -> Value
   {
     return std::visit(
       Overloaded{[](Value v) { return v; }, [&](Wire const& w) { return value(w); }}, s);
@@ -267,15 +268,17 @@ struct VM
   void value(Signal const& s, Value v)
   {
     std::visit(
-      Overloaded{[v](Value v2) { assert(v == v2); }, [&, v](Wire const& w) { value(w, v); }}, s);
+      Overloaded{[v](Value v2) { assert(v == v2); },
+                 [&, v](Wire const& w) { value(w, v); }},  // NOLINT(bugprone-lambda-function-name)
+      s);                                                  // NOLINT(bugprone-lambda-function-name)
   }
 
   /// Execute the instructions.  Returns true if we have updated some wire
   /// values.
-  bool execute()
+  auto execute() -> bool
   {
     bool done_anything = false;
-    for (auto const& instr : instrs_) {
+    for (auto const& instr : instructions_) {
       done_anything |= execute_instr(instr);
     }
 
@@ -290,13 +293,13 @@ private:
    * An instruction may not be executed if the incoming signals have not been
    * set yet.
    */
-  bool execute_instr(Instruction const& instr)
+  auto execute_instr(Instruction const& instr) -> bool
   {
     std::cout << instr << " # ";
 
     // First of all check there is something to do - i.e. that the destination
     // register has not been set already.
-    Wire dest = instr.dest();
+    auto const& dest = instr.dest();
     if (has_value(dest)) {
       std::cout << "already has value: " << dest << " = " << value(dest) << "\n";
       return false;
@@ -325,10 +328,10 @@ private:
    *  \param  fn    How to modify the source value to the dest.
    *  \return       True if we executed the function.
    */
-  bool execute_single_src(Instruction const& instr, std::function<Value(Value)> fn)
+  auto execute_single_src(Instruction const& instr, const std::function<Value(Value)>& fn) -> bool
   {
-    Wire dest = instr.dest();
-    Signal src = instr.src1();
+    const Wire& dest = instr.dest();
+    const Signal& src = instr.src1();
     if (has_value(src)) {
       value(dest, fn(value(src)));
       std::cout << "setting wire to: " << dest << " = " << value(dest) << "\n";
@@ -344,11 +347,12 @@ private:
    *  \param  fn    How to modify the source values to the dest.
    *  \return       True if we executed the function.
    */
-  bool execute_double_src(Instruction const& instr, std::function<Value(Value, Value)> fn)
+  auto execute_double_src(Instruction const& instr, const std::function<Value(Value, Value)>& fn)
+    -> bool
   {
-    Wire dest = instr.dest();
-    Signal src1 = instr.src1();
-    Signal src2 = instr.src2();
+    const Wire& dest = instr.dest();
+    const Signal& src1 = instr.src1();
+    const Signal& src2 = instr.src2();
     if (has_value(src1) && has_value(src2)) {
       value(dest, fn(value(src1), value(src2)));
       std::cout << "setting wire to: " << dest << " = " << value(dest) << "\n";
@@ -360,10 +364,10 @@ private:
   }
 
   ValueMap values_;
-  Instructions instrs_;
+  Instructions instructions_;
 };
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   VM vm;
 

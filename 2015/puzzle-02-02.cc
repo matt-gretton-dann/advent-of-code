@@ -6,9 +6,9 @@
 struct Box
 {
   /** Construct box.
-   *  \param s String representation of dimensions 'lxwxh'
+   *  \param s String representation of dimensions `lxwxh`
    */
-  Box(std::string const& s)
+  explicit Box(std::string const& s)
   {
     std::size_t pos = 0;
     l_ = std::stoul(s, &pos, 10);
@@ -22,33 +22,33 @@ struct Box
   }
 
   // How much paper does this box need?
-  unsigned long paper_needed() const
+  [[nodiscard]] auto paper_needed() const -> std::uint64_t
   {
-    unsigned long s1 = l_ * w_;
-    unsigned long s2 = w_ * h_;
-    unsigned long s3 = h_ * l_;
+    auto s1{l_ * w_};
+    auto s2{w_ * h_};
+    auto s3{h_ * l_};
     return 2 * (s1 + s2 + s3) + std::min({s1, s2, s3});
   }
 
   // How much ribbon do we need?
-  unsigned long ribbon_needed() const
+  [[nodiscard]] auto ribbon_needed() const -> std::uint64_t
   {
     // The various side perimeters - we want the min of these multiplied by
     // volume.
-    unsigned long p1 = 2 * (l_ + w_);
-    unsigned long p2 = 2 * (w_ + h_);
-    unsigned long p3 = 2 * (h_ + l_);
+    auto p1{2 * (l_ + w_)};
+    auto p2{2 * (w_ + h_)};
+    auto p3{2 * (h_ + l_)};
     return l_ * w_ * h_ + std::min({p1, p2, p3});
   }
 
-  unsigned long l_;
-  unsigned long w_;
-  unsigned long h_;
+  std::uint64_t l_;
+  std::uint64_t w_;
+  std::uint64_t h_;
 };
 
-int main(int argc, char** argv)
+auto main() -> int
 {
-  unsigned long total = 0;
+  std::uint64_t total = 0;
   for (std::string line; std::getline(std::cin, line);) {
     Box b(line);
     auto amount = b.ribbon_needed();

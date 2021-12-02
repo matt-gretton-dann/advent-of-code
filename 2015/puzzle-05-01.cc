@@ -1,7 +1,5 @@
 #include <algorithm>
-#include <cassert>
 #include <iostream>
-#include <set>
 #include <string>
 
 // Check if a string is nice:
@@ -9,7 +7,7 @@
 //  >=3 vowels
 //  At least one double letter
 //  No instances of 'ab', 'cd', 'pq', or 'xy'.
-bool is_nice(std::string const& s) noexcept
+auto is_nice(std::string const& s) noexcept -> bool
 {
   unsigned vowel_count = 0;
   bool repeated = false;
@@ -33,7 +31,7 @@ bool is_nice(std::string const& s) noexcept
   return repeated && vowel_count >= 3;
 }
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   unsigned nice_strings;
   for (std::string line; std::getline(std::cin, line);) {

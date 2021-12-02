@@ -21,8 +21,7 @@ struct Graph
     std::smatch m;
     if (!std::regex_search(s, m, re)) {
       std::cout << "Failed to match: " << s << "\n";
-      assert(false);
-      return;
+      abort();
     }
     auto n1 = m.str(1);
     auto n2 = m.str(2);
@@ -37,7 +36,7 @@ struct Graph
     std::cout << n1 << " <-> " << n2 << " weight: " << w << "\n";
   }
 
-  Weight solve_tsp() const
+  [[nodiscard]] auto solve_tsp() const -> Weight
   {
     Weight min_weight = ~0U;
     visit_all_perms([&min_weight](Weight w) {
@@ -49,7 +48,7 @@ struct Graph
     return min_weight;
   }
 
-  Weight solve_max_tsp() const
+  [[nodiscard]] auto solve_max_tsp() const -> Weight
   {
     Weight max_weight = 0;
     visit_all_perms([&max_weight](Weight w) {
@@ -86,7 +85,7 @@ private:
   Edges weights_;
 };
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   Graph g;
 

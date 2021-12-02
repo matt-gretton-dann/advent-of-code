@@ -2,23 +2,15 @@
 #include <cctype>
 #include <functional>
 #include <iostream>
-#include <map>
-#include <regex>
-#include <set>
 #include <string>
-#include <variant>
 
-int do_parse(std::string const& s, std::string::size_type& pos)
+auto do_parse(std::string const& s, std::string::size_type& pos) -> int
 {
   int result = 0;
   bool ignore = false;
 
   while (pos < s.size()) {
-    if (s[pos] == '{') {
-      ++pos;
-      result += do_parse(s, pos);
-    }
-    else if (s[pos] == '[') {
+    if (s[pos] == '{' || s[pos] == '[') {
       ++pos;
       result += do_parse(s, pos);
     }
@@ -40,7 +32,7 @@ int do_parse(std::string const& s, std::string::size_type& pos)
       }
       pos = e + 1;
     }
-    else if (std::isdigit(s[pos]) || s[pos] == '-') {
+    else if (std::isdigit(s[pos]) == 1 || s[pos] == '-') {
       std::size_t len = 0;
       result += std::stoi(s.substr(pos), &len);
       pos += len;
@@ -54,7 +46,7 @@ int do_parse(std::string const& s, std::string::size_type& pos)
   return result;
 }
 
-int parse_numbers(std::string const& s)
+auto parse_numbers(std::string const& s) -> int
 {
   std::string::size_type pos = 0;
   int result = do_parse(s, pos);
@@ -62,7 +54,7 @@ int parse_numbers(std::string const& s)
   return result;
 }
 
-int main(int argc, char** argv)
+auto main() -> int
 {
   int acc = 0;
   for (std::string line; std::getline(std::cin, line);) {
