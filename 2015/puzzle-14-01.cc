@@ -38,7 +38,7 @@ Distance distance(std::string const& s, unsigned t)
     return result;
   }
   else {
-    assert(false);
+    abort();
   }
 }
 

@@ -62,7 +62,7 @@ private:
       std::cout << "expr_ = " << expr_ << "\n";
       std::cout << "pos_ = " << pos_ << "\n";
       std::cout << "End = " << expr_.substr(pos_) << "\n";
-      assert(false);
+      abort();
     }
   }
 
@@ -96,7 +96,7 @@ private:
       std::cout << "expr_ = " << expr_ << "\n";
       std::cout << "pos_ = " << pos_ << "\n";
       std::cout << "End = " << expr_.substr(pos_) << "\n";
-      assert(false);
+      abort();
     }
   }
 
