@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 05/12/2021.
 //
 
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <ostream>
@@ -10,50 +11,74 @@
 #include <string>
 #include <vector>
 
+/** \brief  Item types.  */
 enum class ItemType { generator, chip };
 
+/** \brief An Item - consists of a type and a name
+ *
+ * To improve performance we store all names in a lookup table and use IDs to map to strings.  This
+ * makes comparing items a couple of integer comparisons and not a string compare.
+ */
 struct Item
 {
-  auto operator<(Item const& rhs) const noexcept -> bool
+  /**
+   * \brief      Constructor
+   * \param type Item type
+   * \param name Item name
+   */
+  Item(ItemType type, std::string const& name) : type_(type)
   {
-    if (name_ < rhs.name_) {
-      return true;
+    auto it{std::find(names_.begin(), names_.end(), name)};
+    if (it == names_.end()) {
+      name_index_ = names_.size();
+      names_.push_back(name);
     }
-    if (name_ == rhs.name_ && type_ < rhs.type_) {
-      return true;
+    else {
+      name_index_ = it - names_.begin();
     }
-    return false;
   }
 
-  auto operator==(Item const& rhs) const noexcept -> bool
+  /**
+   * \brief      Less than comparator
+   * \param  rhs Right-hand side
+   * \return     \c true if \c *this < \a rhs.
+   */
+  [[nodiscard]] auto operator<(Item const& rhs) const noexcept -> bool
   {
-    return name_ == rhs.name_ && type_ == rhs.type_;
+    return (type_ < rhs.type_) || (type_ == rhs.type_ && name_index_ < rhs.name_index_);
+  }
+
+  /**
+   * \brief      Equality comparator
+   * \param  rhs Right hand side
+   * \return     \c true iff \c *this == \a rhs
+   */
+  [[nodiscard]] auto operator==(Item const& rhs) const noexcept -> bool
+  {
+    return name_index_ == rhs.name_index_ && type_ == rhs.type_;
   }
 
   ItemType type_{ItemType::generator};
-  std::string name_{};
+  size_t name_index_{0};
+  static std::vector<std::string> names_;
 };
 
-auto operator<<(std::ostream& os, Item const& item) -> std::ostream&
-{
-  switch (item.type_) {
-  case ItemType::generator:
-    os << "G";
-    break;
-  case ItemType::chip:
-    os << "C";
-    break;
-  default:
-    break;
-  }
-  os << item.name_;
-  return os;
-}
+std::vector<std::string> Item::names_;
 
+/**
+ * \brief A possible state to examine.
+ *
+ * Consists of the current floor of the elevator and floors containing items.
+ */
 struct State
 {
-  static constexpr unsigned floor_count{4};
+  static constexpr unsigned floor_count{4};  ///< Number of floors
 
+  /**
+   * \brief      Less than comparator
+   * \param  rhs Right-hand side
+   * \return     \c true if \c *this < \a rhs.
+   */
   [[nodiscard]] auto operator==(State const& rhs) const noexcept -> bool
   {
     if (elevator_floor_ != rhs.elevator_floor_) {
@@ -67,6 +92,11 @@ struct State
     return true;
   }
 
+  /**
+   * \brief      Equality comparator
+   * \param  rhs Right hand side
+   * \return     \c true iff \c *this == \a rhs
+   */
   [[nodiscard]] auto operator<(State const& rhs) const noexcept -> bool
   {
     if (elevator_floor_ < rhs.elevator_floor_) {
@@ -86,6 +116,10 @@ struct State
     return false;
   }
 
+  /**
+   * \brief   Are all items at the top.
+   * \return  \c true iff the elevator and all items are on the top floor.
+   */
   [[nodiscard]] auto all_at_top() const noexcept -> bool
   {
     if (elevator_floor_ != floor_count - 1) {
@@ -99,6 +133,12 @@ struct State
     return true;
   }
 
+  /**
+   * \brief       Move an item from the current floor
+   * \param  dir  Direction to move item
+   * \param  item Item to move
+   * \return      New state with item and elevator moved.
+   */
   [[nodiscard]] auto move(int dir, Item const& item) const -> State
   {
     State n{*this};
@@ -108,6 +148,13 @@ struct State
     return n;
   }
 
+  /**
+   * \brief       Move two items from the current floor
+   * \param  dir  Direction to move item
+   * \param  i1   Item to move
+   * \param  i2   Item to move
+   * \return      New state with items and elevator moved.
+   */
   [[nodiscard]] auto move(int dir, Item const& i1, Item const& i2) const -> State
   {
     State n{*this};
@@ -119,21 +166,25 @@ struct State
     return n;
   }
 
+  /**
+   * \brief  Is this a valid state?
+   * \return \c true iff this state is valid.
+   */
   [[nodiscard]] auto valid() const noexcept -> bool
   {
-    for (auto floor : floors_) {
+    for (auto const& floor : floors_) {
       for (auto item : floor) {
         if (item.type_ != ItemType::chip) {
           continue;
         }
-        auto name = item.name_;
+        auto name = item.name_index_;
         bool has_generator{false};
         bool has_other_generators{false};
         for (auto i2 : floor) {
-          if (i2.type_ == ItemType::generator && i2.name_ == name) {
+          if (i2.type_ == ItemType::generator && i2.name_index_ == name) {
             has_generator = true;
           }
-          if (i2.type_ == ItemType::generator && i2.name_ != name) {
+          if (i2.type_ == ItemType::generator && i2.name_index_ != name) {
             has_other_generators = true;
           }
         }
@@ -145,25 +196,15 @@ struct State
     return true;
   }
 
+  /** Insert an item onto a given floor. */
   void insert_item(unsigned floor, Item const& item) { floors_.at(floor).insert(item); }
 
-  void print(std::ostream& os) const
-  {
-    unsigned floor{floor_count};
-    while (floor-- != 0) {
-      std::cout << ((elevator_floor_ == floor) ? 'E' : '-');
-      for (auto const& it : floors_.at(floor)) {
-        os << ' ' << it;
-      }
-      os << '\n';
-    }
-  }
-
   using FloorState = std::set<Item>;
-  unsigned elevator_floor_{0};
-  std::array<FloorState, floor_count> floors_;
+  unsigned elevator_floor_{0};                  ///< Current floor
+  std::array<FloorState, floor_count> floors_;  ///< Items on each floor.
 };
 
+/** Translate a floor name to a number.  Note we translate to 0-based from  1-based.  */
 auto to_floor(std::string const& s) -> unsigned
 {
   if (s == "first") {
@@ -181,7 +222,13 @@ auto to_floor(std::string const& s) -> unsigned
   abort();
 }
 
-auto update_sets(std::set<State> const& visited, std::set<State>& to_visit, State const& s)
+/**
+ * \brief          Update \a to_visit states with \a s if it is valid and hasn't been seen before.
+ * \param visited  Previously visited states
+ * \param to_visit States to visit next iteration.
+ * \param s        State to add
+ */
+void update_sets(std::set<State> const& visited, std::set<State>& to_visit, State const& s)
 {
   if (s.valid() && visited.find(s) == visited.end()) {
     to_visit.insert(s);
@@ -196,6 +243,7 @@ auto main() -> int
   static std::regex microchip_re{"([a-z]+)-compatible microchip"};
   State initial_state;
 
+  /* Read standard input to get the initial state.  */
   while (std::getline(std::cin, line)) {
     std::smatch m;
     if (!std::regex_search(line, m, floor_re)) {
@@ -225,6 +273,17 @@ auto main() -> int
   initial_state.insert_item(0, {ItemType::generator, "dilithium"});
   initial_state.insert_item(0, {ItemType::chip, "dilithium"});
 
+  /* This is basically Dijkstra's minimum distance graph algorithm.  However, there are some slight
+   * optimisations to make this perform acceptably.
+   *
+   * Because the cost function is the number of moves of the elevator we can iterate through all
+   * States with cost N, knowing that every new state from those will have cost N + 1.
+   *
+   * So we have the set \c to_visit which is the set of states that cost \c cost to reach.  We
+   * iterate over every state in that producing the states with cost \c cost + 1.  These go into
+   * the set \c next_to_visit.  We ensure there are no duplicates of previously visited states
+   * in that set, and then repeat the process.
+   */
   std::set<State> visited;
   std::set<State> to_visit;
   to_visit.insert(initial_state);
