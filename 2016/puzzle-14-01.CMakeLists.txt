@@ -1,0 +1,2 @@
+find_package(OpenSSL REQUIRED)
+target_link_libraries("${puzzle_name}" OpenSSL::SSL)
