@@ -40,6 +40,7 @@ auto md5_directions(std::string const& s) -> Directions
   return d;
 }
 
+/** Node in the graph.  */
 struct Node
 {
   explicit Node(std::string s) : str_(std::move(s)) {}
@@ -48,6 +49,9 @@ struct Node
 
   auto operator<(Node const& rhs) const noexcept -> bool
   {
+    /* Note the order starts with the string size - so that shorter routes get prioritised over
+     * longer ones.
+     */
     return str_.size() < rhs.str_.size() || (str_.size() == rhs.str_.size() && str_ < rhs.str_);
   }
 
@@ -76,9 +80,15 @@ struct Node
 private:
   Node(std::string s, unsigned x, unsigned y) : str_(std::move(s)), x_(x), y_(y) {}
 
+  /**
+   * \brief String describing location.
+   *
+   * This all we need to uniquely identify the node - however, we also keep x & y co-ordinates as
+   * a speed up so we don't have to keep working out the location.
+   */
   std::string str_;
-  unsigned x_{0};
-  unsigned y_{0};
+  unsigned x_{0};  ///< X position
+  unsigned y_{0};  ///< Y position
 };
 
 auto main() -> int
@@ -96,6 +106,10 @@ auto main() -> int
   to_visit.insert(initial_state);
 
   std::size_t longest_path_len{0};
+  /* Simple version of Dijkstra's algorithm:
+   * The nodes are automatically ordered by cost.  Moving only ever increases the cost (even if
+   * we're just moving back to the position we've been).
+   */
   while (!to_visit.empty()) {
     auto it{to_visit.begin()};
     Node n{*it};
