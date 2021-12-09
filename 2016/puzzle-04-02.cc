@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 03/12/2021.
 //
 
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <set>

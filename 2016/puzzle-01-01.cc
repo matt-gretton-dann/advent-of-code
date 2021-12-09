@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 02/12/2021.
 //
 
+#include <cassert>
 #include <iostream>
 #include <string>
 

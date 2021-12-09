@@ -3,6 +3,7 @@
 //
 
 #include <array>
+#include <cassert>
 #include <iostream>
 #include <numeric>
 #include <string>
