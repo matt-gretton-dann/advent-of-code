@@ -19,9 +19,9 @@ struct Node
     return x_ < rhs.x_ || (x_ == rhs.x_ && y_ < rhs.y_);
   }
 
-  Num x() const noexcept { return x_; }
-  Num y() const noexcept { return y_; }
-  Num cost() const noexcept { return cost_; }
+  constexpr Num x() const noexcept { return x_; }
+  constexpr Num y() const noexcept { return y_; }
+  constexpr Num cost() const noexcept { return cost_; }
 
   Node move_left() { return {x_ - 1, y_, cost_ + 1}; }
   Node move_up() { return {x_, y_ + 1, cost_ + 1}; }
