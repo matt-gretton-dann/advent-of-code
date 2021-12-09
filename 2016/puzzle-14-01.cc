@@ -20,7 +20,7 @@ auto md5(std::string const& s) -> std::string
 
   EVP_MD_CTX* md_context{EVP_MD_CTX_new()};
   assert(md_context != nullptr);
-  EVP_DigestInit_ex2(md_context, md, nullptr);
+  EVP_DigestInit_ex(md_context, md, nullptr);
   EVP_DigestUpdate(md_context, s.data(), s.length());
   EVP_DigestFinal_ex(md_context, digest.data(), &md_len);
   std::string result;

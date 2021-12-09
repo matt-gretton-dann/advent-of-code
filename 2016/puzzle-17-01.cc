@@ -22,7 +22,7 @@ auto md5_directions(std::string const& s) -> Directions
 
   EVP_MD_CTX* md_context{EVP_MD_CTX_new()};
   assert(md_context != nullptr);
-  EVP_DigestInit_ex2(md_context, md, nullptr);
+  EVP_DigestInit_ex(md_context, md, nullptr);
   EVP_DigestUpdate(md_context, s.data(), s.length());
   EVP_DigestFinal_ex(md_context, digest.data(), &md_len);
   Directions d{Directions::none};
