@@ -82,10 +82,7 @@ auto main() -> int
 
   unsigned route_count{0};
   Route route{"start"};
-  visit(route, paths, [&route_count](auto const&, auto const&) {
-    std::cout << "\n";
-    ++route_count;
-  });
+  visit(route, paths, [&route_count](auto const&, auto const&) { ++route_count; });
   std::cout << "Routes count: " << route_count;
   return 0;
 }
