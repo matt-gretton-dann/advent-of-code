@@ -5,11 +5,12 @@
 #include <array>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
 
 enum class Register { a, b, c, d };
-Register to_register(char c)
+auto to_register(char c) -> Register
 {
   switch (c) {
   case 'a':
@@ -27,7 +28,7 @@ Register to_register(char c)
 
 enum class Opcode { cpy, inc, dec, jnz, tgl };
 
-Opcode to_opcode(std::string const& s)
+auto to_opcode(std::string const& s) -> Opcode
 {
   if (s == "cpy") {
     return Opcode::cpy;
@@ -47,7 +48,7 @@ Opcode to_opcode(std::string const& s)
   abort();
 }
 
-using Int = long;
+using Int = long;  // NOLINT(google-runtime-int)
 using Operand = std::variant<Register, Int, std::monostate>;
 
 struct Instruction
@@ -57,9 +58,9 @@ struct Instruction
   {
   }
 
-  Opcode opcode() const noexcept { return opcode_; }
-  Operand const& op1() const noexcept { return op1_; }
-  Operand const& op2() const noexcept { return op2_; }
+  [[nodiscard]] auto opcode() const noexcept -> Opcode { return opcode_; }
+  [[nodiscard]] auto op1() const noexcept -> Operand const& { return op1_; }
+  [[nodiscard]] auto op2() const noexcept -> Operand const& { return op2_; }
 
   void toggle()
   {
@@ -89,8 +90,10 @@ struct Instruction
 
     {
       char* end{nullptr};
-      auto val{std::strtol(s.data() + idx, &end, 10)};
-      if (end != s.data() + idx) {
+      auto val{
+        std::strtol(s.data() + idx,  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+                    &end, 10)};
+      if (end != s.data() + idx) {  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         op1 = val;
         idx = end - s.data();
       }
@@ -103,9 +106,11 @@ struct Instruction
     if (idx < s.size()) {
       assert(s[idx] == ' ');
       ++idx;
-      char* end{0};
-      auto val{std::strtol(s.data() + idx, &end, 10)};
-      if (end != s.data() + idx) {
+      char* end{nullptr};
+      auto val{
+        std::strtol(s.data() + idx,  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+                    &end, 10)};
+      if (end != s.data() + idx) {  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         op2 = val;
       }
       else {
@@ -113,7 +118,7 @@ struct Instruction
       }
     }
 
-    return Instruction(opcode, op1, op2);
+    return {opcode, op1, op2};
   }
 
 private:
@@ -124,10 +129,19 @@ private:
 
 struct State
 {
-  State(std::vector<Instruction> const& instructions) : instructions_(instructions) {}
+  explicit State(std::vector<Instruction> instructions) : instructions_(std::move(instructions)) {}
 
-  auto reg(Register r) const noexcept -> Int { return registers_[static_cast<unsigned>(r)]; }
-  void reg(Register r, Int v) noexcept { registers_[static_cast<unsigned>(r)] = v; }
+  [[nodiscard]] auto reg(Register r) const noexcept -> Int
+  {
+    return registers_
+      [static_cast<unsigned>(  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+        r)];
+  }
+  void reg(Register r, Int v) noexcept
+  {
+    registers_[static_cast<unsigned>(  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+      r)] = v;
+  }
 
   void execute()
   {
@@ -161,10 +175,12 @@ struct State
   }
 
 private:
-  Int value(Operand const& o)
+  auto value(Operand const& o) -> Int
   {
     if (std::holds_alternative<Register>(o)) {
-      return registers_[static_cast<unsigned>(std::get<Register>(o))];
+      return registers_
+        [static_cast<unsigned>(  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+          std::get<Register>(o))];
     }
     if (std::holds_alternative<Int>(o)) {
       return std::get<Int>(o);
@@ -175,7 +191,9 @@ private:
   void set(Operand const& dest, Int value)
   {
     if (std::holds_alternative<Register>(dest)) {
-      registers_[static_cast<unsigned>(std::get<Register>(dest))] = value;
+      registers_[// NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+        static_cast<unsigned>(std::get<Register>(dest))] =
+        value;
     }
   }
 
