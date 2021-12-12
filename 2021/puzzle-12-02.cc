@@ -12,9 +12,9 @@
 using Paths = std::multimap<std::string, std::string>;
 using Route = std::vector<std::string>;
 
-auto is_upper_case(std::string const& s) -> bool { return std::isupper(s[0]) ? true : false; }
+auto is_upper_case(std::string const& s) -> bool { return std::isupper(s[0]) == 1; }
 
-auto is_visitable(Route const& route, Paths const& paths, std::string const& proposed) -> bool
+auto is_visitable(Route const& route, std::string const& proposed) -> bool
 {
   if (is_upper_case(proposed)) {
     return true;
@@ -22,7 +22,7 @@ auto is_visitable(Route const& route, Paths const& paths, std::string const& pro
 
   std::set<std::string> visited;
   bool little_visited_twice{false};
-  for (auto r : route) {
+  for (const auto& r : route) {
     if (!is_upper_case(r)) {
       if (visited.contains(r)) {
         little_visited_twice = true;
@@ -50,7 +50,7 @@ void visit(Route& route, Paths const& paths, Fn visitor)
   }
 
   for (auto it{path_begin}; it != path_end; ++it) {
-    if (is_visitable(route, paths, it->second)) {
+    if (is_visitable(route, it->second)) {
       route.push_back(it->second);
       visit(route, paths, visitor);
       route.pop_back();
@@ -82,10 +82,7 @@ auto main() -> int
 
   unsigned route_count{0};
   Route route{"start"};
-  visit(route, paths, [&route_count](auto const& route, auto const&) {
-    for (auto r : route) {
-      std::cout << " " << r;
-    }
+  visit(route, paths, [&route_count](auto const&, auto const&) {
     std::cout << "\n";
     ++route_count;
   });
