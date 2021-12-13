@@ -3,6 +3,7 @@
 //
 
 #include <array>
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -191,9 +192,8 @@ private:
   void set(Operand const& dest, Int value)
   {
     if (std::holds_alternative<Register>(dest)) {
-      registers_[// NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
-        static_cast<unsigned>(std::get<Register>(dest))] =
-        value;
+      registers_[  // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+        static_cast<unsigned>(std::get<Register>(dest))] = value;
     }
   }
 

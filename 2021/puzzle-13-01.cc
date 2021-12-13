@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <numeric>
 #include <regex>
 #include <set>
 #include <string>
