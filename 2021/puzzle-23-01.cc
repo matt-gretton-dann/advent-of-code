@@ -1,12 +1,11 @@
 #include <array>
+#include <cassert>
 #include <functional>
 #include <iostream>
 #include <map>
 #include <regex>
 #include <set>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
 
 // Map:
 // #############
@@ -29,15 +28,13 @@ using Position = char;
 using UInt = int;
 using Type = char;
 
-std::multimap<Position, std::pair<Position, UInt>> costs{
-  {'a', {'b', 1}}, {'b', {'a', 1}}, {'b', {'c', 2}}, {'b', {'h', 2}}, {'c', {'b', 2}},
-  {'c', {'d', 2}}, {'c', {'h', 2}}, {'c', {'i', 2}}, {'d', {'c', 2}}, {'d', {'e', 2}},
-  {'d', {'i', 2}}, {'d', {'j', 2}}, {'e', {'d', 2}}, {'e', {'f', 2}}, {'e', {'j', 2}},
-  {'e', {'k', 2}}, {'f', {'e', 2}}, {'f', {'g', 1}}, {'f', {'k', 2}}, {'g', {'f', 1}},
-  {'h', {'b', 2}}, {'h', {'c', 2}}, {'h', {'l', 1}}, {'i', {'c', 2}}, {'i', {'d', 2}},
-  {'i', {'m', 1}}, {'j', {'d', 2}}, {'j', {'e', 2}}, {'j', {'n', 1}}, {'k', {'e', 2}},
-  {'k', {'f', 2}}, {'k', {'o', 1}}, {'l', {'h', 1}}, {'m', {'i', 1}}, {'n', {'j', 1}},
-  {'o', {'k', 1}}};
+std::multimap<Position, std::pair<Position, UInt>> valid_moves{
+  {0, {1, 1}},  {1, {0, 1}},   {1, {2, 2}},  {1, {7, 2}},  {2, {1, 2}},  {2, {3, 2}},
+  {2, {7, 2}},  {2, {8, 2}},   {3, {2, 2}},  {3, {4, 2}},  {3, {8, 2}},  {3, {9, 2}},
+  {4, {3, 2}},  {4, {5, 2}},   {4, {9, 2}},  {4, {10, 2}}, {5, {4, 2}},  {5, {6, 1}},
+  {5, {10, 2}}, {6, {5, 1}},   {7, {1, 2}},  {7, {2, 2}},  {7, {11, 1}}, {8, {2, 2}},
+  {8, {3, 2}},  {8, {12, 1}},  {9, {3, 2}},  {9, {4, 2}},  {9, {13, 1}}, {10, {4, 2}},
+  {10, {5, 2}}, {10, {14, 1}}, {11, {7, 1}}, {12, {8, 1}}, {13, {9, 1}}, {14, {10, 1}}};
 
 std::map<Type, UInt> multipliers{{'A', 1}, {'B', 10}, {'C', 100}, {'D', 1000}};
 
@@ -47,6 +44,7 @@ struct State
   auto size() const noexcept -> UInt { return 15; }
   auto node(unsigned idx) noexcept -> Type& { return nodes_[idx]; }
   auto node(unsigned idx) const noexcept -> Type const& { return nodes_[idx]; }
+  auto cost() const noexcept -> UInt { return cost_; }
 
   bool check_move(unsigned from, unsigned to)
   {
@@ -75,41 +73,55 @@ struct State
     abort();
   }
 
-  bool move(unsigned from, unsigned to)
+  bool move(unsigned from, unsigned to, UInt cost)
   {
     if (!check_move(from, to)) {
       return false;
     }
     std::swap(nodes_[from], nodes_[to]);
+    cost_ += cost;
     return true;
   }
 
-  constexpr bool operator<(State const& rhs) const noexcept { return nodes_ < rhs.nodes_; }
-  constexpr bool operator==(State const& rhs) const noexcept { return nodes_ < rhs.nodes_; }
+  bool operator<(State const& rhs) const noexcept { return nodes_ < rhs.nodes_; }
+  bool operator==(State const& rhs) const noexcept { return nodes_ < rhs.nodes_; }
 
 private:
   std::array<Type, 15> nodes_{'.'};
   static std::array<Type, 15> finished_;
-};
-
-template<>
-struct std::hash<State>
-{
-  auto operator()(State const& key) const -> std::size_t
-  {
-    std::size_t result{0};
-    for (auto i{0}; i < 15; ++i) {
-      result <<= 3;
-      if (key.node(i) != '.') {
-        result |= key.node(i) - 'A' + 1;
-      }
-    }
-    return result;
-  }
+  UInt cost_{0};
 };
 
 std::array<Type, 15> State::finished_ = {'.', '.', '.', '.', '.', '.', '.', 'A',
                                          'B', 'C', 'D', 'A', 'B', 'C', 'D'};
+
+struct StateCmp
+{
+  bool operator()(State const* lhs, State const* rhs) const noexcept
+  {
+    if (lhs == nullptr && rhs != nullptr) {
+      return true;
+    }
+    if (rhs == nullptr) {
+      return true;
+    }
+    return *lhs < *rhs;
+  }
+};
+
+struct CostStateCmp
+{
+  bool operator()(State const* lhs, State const* rhs) const noexcept
+  {
+    if (lhs == nullptr && rhs != nullptr) {
+      return true;
+    }
+    if (rhs == nullptr) {
+      return true;
+    }
+    return lhs->cost() < rhs->cost() || (lhs->cost() == rhs->cost() && *lhs < *rhs);
+  }
+};
 
 auto main() -> int
 {
@@ -124,7 +136,7 @@ auto main() -> int
     std::cerr << "Incorrect first line.\n";
     return 1;
   }
-  State initial_state;
+  State* initial_state = new State;
 
   std::getline(std::cin, line);
   if (!std::regex_search(line, m, line2_re)) {
@@ -132,7 +144,7 @@ auto main() -> int
     return 1;
   }
   for (unsigned i = 0; i < 7; ++i) {
-    initial_state.node(i) = m.str(i + 1)[0];
+    initial_state->node(i) = m.str(i + 1)[0];
   }
 
   std::getline(std::cin, line);
@@ -141,7 +153,7 @@ auto main() -> int
     return 1;
   }
   for (unsigned i = 0; i < 4; ++i) {
-    initial_state.node(7 + i) = m.str(i + 1)[0];
+    initial_state->node(7 + i) = m.str(i + 1)[0];
   }
 
   std::getline(std::cin, line);
@@ -150,45 +162,63 @@ auto main() -> int
     return 1;
   }
   for (unsigned i = 0; i < 4; ++i) {
-    initial_state.node(11 + i) = m.str(i + 1)[0];
+    initial_state->node(11 + i) = m.str(i + 1)[0];
   }
 
-  std::map<State, UInt> states;
-  states.insert({initial_state, 0});
-  std::set<State> visited;
+  std::set<State*, StateCmp> states;
+  std::set<State*, CostStateCmp> costs;
+  std::set<State*, StateCmp> visited;
+  states.insert(initial_state);
+  costs.insert(initial_state);
 
-  while (!states.empty()) {
-    auto it{std::min_element(states.begin(), states.end(), [](auto const& lhs, auto const& rhs) {
-      return lhs.second < rhs.second;
-    })};
-    if (visited.size() % 10'000 == 0) {
-      std::cout << "Visited: " << visited.size() << " number of states: " << states.size()
-                << " Min energy: " << it->second << '\n';
-    }
+  while (!costs.empty()) {
+    assert(costs.size() == states.size());
+    auto it{costs.begin()};
 
-    State state{it->first};
-    UInt cost{it->second};
+    State* state{*it};
     visited.insert(state);
     states.erase(state);
+    costs.erase(it);
 
-    if (state.finished()) {
-      std::cout << "Done with cost " << cost << '\n';
+    if (visited.size() % 10'000 == 0) {
+      std::cout << "Visited: " << visited.size() << " number of states: " << states.size()
+                << " Min energy: " << state->cost() << '\n';
+    }
+
+    if (state->finished()) {
+      std::cout << "Done with cost " << state->cost() << '\n';
       return 0;
     }
 
-    for (unsigned i = 0; i < state.size(); ++i) {
-      if (state.node(i) == '.') {
+    for (unsigned i = 0; i < state->size(); ++i) {
+      if (state->node(i) == '.') {
         continue;
       }
-      auto [it_begin, it_end] = costs.equal_range(i + 'a');
-      for (auto cost_it{it_begin}; cost_it != it_end; ++cost_it) {
-        State next_state{state};
-        if (next_state.move(i, cost_it->second.first - 'a') && !visited.contains(next_state)) {
-          UInt next_cost = cost + cost_it->second.second * multipliers[state.node(i)];
-          auto [insert_it, success] = states.insert({next_state, next_cost});
+      auto [it_begin, it_end] = valid_moves.equal_range(i);
+      for (auto move_it{it_begin}; move_it != it_end; ++move_it) {
+        State* next_state = new State{*state};
+        UInt cost_delta = move_it->second.second * multipliers[state->node(i)];
+        bool keep{false};
+        if (next_state->move(i, move_it->second.first, cost_delta) &&
+            !visited.contains(next_state)) {
+          auto [insert_it, success] = states.insert(next_state);
           if (!success) {
-            insert_it->second = std::min(insert_it->second, next_cost);
+            auto old_state{*insert_it};
+            if (next_state->cost() < old_state->cost()) {
+              keep = true;
+              costs.erase(old_state);
+              states.erase(old_state);
+              states.insert(next_state);
+              costs.insert(next_state);
+            }
           }
+          else {
+            keep = true;
+            costs.insert(next_state);
+          }
+        }
+        if (!keep) {
+          delete next_state;
         }
       }
     }
