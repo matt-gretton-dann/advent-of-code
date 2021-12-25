@@ -1,4 +1,5 @@
 #include <array>
+#include <cassert>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -7,36 +8,62 @@
 #include <string>
 
 // Map:
-// 0 1    2    3   4    5 6
-//      7    8    9  10
-//     11   12   13  14
-//     15   16   17  18
-//     19   20   21  22
+// #############
+// #ab.c.d.e.fg#
+// ###h#i#j#k###
+//   #l#m#n#o#
+//   #########
+//
+//  0 -1- 1 -2- 2 -2- 3 -2- 4 -2- 5 -1- 6
+//         \   / \   / \   / \   /
+//          2 2   2 2   2 2   2 2
+//           +     +     +     +
+//           7     8     9    10
+//           |     |     |     |
+//           1     1     1     1
+//           |     |     |     |
+//          11    12    13    14
+//           |     |     |     |
+//           1     1     1     1
+//           |     |     |     |
+//          15    16    17    18
+//           |     |     |     |
+//           1     1     1     1
+//           |     |     |     |
+//          19    20    21    22
+// Actually : {0-6} can go to any of {7-10} at varying cost but there are move restritions.
 
-using Position = unsigned;
-using UInt = unsigned;
+using Position = char;
+using UInt = int;
 using Type = char;
 
-std::multimap<Position, std::pair<Position, UInt>> legal_moves{
-  {0, {1, 1}},   {1, {0, 1}},   {1, {2, 2}},   {1, {7, 2}},   {2, {1, 2}},   {2, {3, 2}},
-  {2, {7, 2}},   {2, {8, 2}},   {3, {2, 2}},   {3, {4, 2}},   {3, {8, 2}},   {3, {9, 2}},
-  {4, {3, 2}},   {4, {5, 2}},   {4, {9, 2}},   {4, {10, 2}},  {5, {4, 2}},   {5, {6, 1}},
-  {5, {10, 2}},  {6, {5, 1}},   {7, {1, 2}},   {7, {2, 2}},   {7, {11, 1}},  {8, {2, 2}},
-  {8, {3, 2}},   {8, {12, 1}},  {9, {3, 2}},   {9, {4, 2}},   {9, {13, 1}},  {10, {4, 2}},
-  {10, {5, 2}},  {10, {14, 1}}, {11, {7, 1}},  {12, {8, 1}},  {13, {9, 1}},  {14, {10, 1}},
-  {11, {15, 1}}, {12, {16, 1}}, {13, {17, 1}}, {14, {18, 1}}, {15, {11, 1}}, {16, {12, 1}},
-  {17, {13, 1}}, {18, {14, 1}}, {15, {19, 1}}, {16, {20, 1}}, {17, {21, 1}}, {18, {22, 1}},
-  {19, {15, 1}}, {20, {16, 1}}, {21, {17, 1}}, {22, {18, 1}},
-};
+std::multimap<Position, std::pair<Position, UInt>> valid_moves{
+  {0, {7, 3}},   {0, {8, 5}},   {0, {9, 7}},   {0, {10, 9}},  {1, {7, 2}},   {1, {8, 4}},
+  {1, {9, 6}},   {1, {10, 8}},  {2, {7, 2}},   {2, {8, 2}},   {2, {9, 4}},   {2, {10, 6}},
+  {3, {7, 4}},   {3, {8, 2}},   {3, {9, 2}},   {3, {10, 4}},  {4, {7, 6}},   {4, {8, 4}},
+  {4, {9, 2}},   {4, {10, 2}},  {5, {7, 8}},   {5, {8, 6}},   {5, {9, 4}},   {5, {10, 2}},
+  {6, {7, 9}},   {6, {8, 7}},   {6, {9, 5}},   {6, {10, 3}},  {7, {0, 3}},   {7, {1, 2}},
+  {7, {2, 2}},   {7, {3, 4}},   {7, {4, 6}},   {7, {5, 8}},   {7, {6, 9}},   {7, {11, 1}},
+  {8, {0, 5}},   {8, {1, 4}},   {8, {2, 2}},   {8, {3, 2}},   {8, {4, 4}},   {8, {5, 6}},
+  {8, {6, 7}},   {8, {12, 1}},  {9, {0, 7}},   {9, {1, 6}},   {9, {2, 4}},   {9, {3, 2}},
+  {9, {4, 2}},   {9, {5, 4}},   {9, {6, 5}},   {9, {13, 1}},  {10, {0, 9}},  {10, {1, 8}},
+  {10, {2, 6}},  {10, {3, 4}},  {10, {4, 2}},  {10, {5, 2}},  {10, {6, 3}},  {10, {14, 1}},
+  {11, {7, 1}},  {12, {8, 1}},  {13, {9, 1}},  {14, {10, 1}}, {11, {15, 1}}, {12, {16, 1}},
+  {13, {17, 1}}, {14, {18, 1}}, {15, {11, 1}}, {16, {12, 1}}, {17, {13, 1}}, {18, {14, 1}},
+  {14, {10, 1}}, {15, {19, 1}}, {16, {20, 1}}, {17, {21, 1}}, {18, {22, 1}}, {19, {15, 1}},
+  {20, {16, 1}}, {21, {17, 1}}, {22, {18, 1}}};
 
 std::map<Type, UInt> multipliers{{'A', 1}, {'B', 10}, {'C', 100}, {'D', 1000}};
 
 struct State
 {
+  static constexpr UInt size_ = 23;
+
   auto finished() const noexcept -> bool { return nodes_ == finished_; }
-  auto size() const noexcept -> UInt { return node_size; }
+  auto size() const noexcept -> UInt { return size_; }
   auto node(unsigned idx) noexcept -> Type& { return nodes_[idx]; }
   auto node(unsigned idx) const noexcept -> Type const& { return nodes_[idx]; }
+  auto cost() const noexcept -> UInt { return cost_; }
 
   bool check_move(unsigned from, unsigned to)
   {
@@ -44,118 +71,150 @@ struct State
       return false;
     }
     if (from > 18) {
-      // Bottom row
       // Only move out of the bottom row if we're not meant to be here.
       return nodes_[from] != finished_[from];
     }
     if (from > 14 && from < 19) {
-      // Second bottom row
-      if (to > 18) {
-        // Only move down if we're the right node
-        return nodes_[from] == finished_[to];
+      if (to < 15) {
+        // Second bottom row - only move up if we're not meant to be here or the one below isn't.
+        return nodes_[from] != finished_[from] ||
+               (nodes_[from + 4] != '.' && nodes_[from + 4] != finished_[from + 4]);
       }
-      // Only move up if we or a node beneath us is incorrect.
-      if (nodes_[from] != finished_[from]) {
-        return true;
-      }
-      if (nodes_[from + 4] != '.' && nodes_[from + 4] != finished_[from]) {
-        return true;
-      }
-      return false;
+
+      // Moving down - only do it if we're of the right type.
+      return nodes_[from] == finished_[to];
     }
     if (from > 10 && from < 15) {
-      // Second top row
-      if (to > 14) {
-        // Only move down if we're the right node and the very bottom is empty or contains the
-        // correct node.
-        if (nodes_[from + 8] != '.' && nodes_[from + 8] != finished_[to]) {
-          return false;
-        }
-        return nodes_[from] == finished_[to];
+      // Second top row.
+      if (to < 11) {
+        return nodes_[from] != finished_[from] ||
+               (nodes_[from + 4] != '.' && nodes_[from + 4] != finished_[from + 4]) ||
+               (nodes_[from + 8] != '.' && nodes_[from + 8] != finished_[from + 8]);
       }
-      // Only move up if we or a node beneath us is incorrect.
-      if (nodes_[from] != finished_[from]) {
-        return true;
-      }
-      if (nodes_[from + 4] != '.' && nodes_[from + 4] != finished_[from]) {
-        return true;
-      }
-      if (nodes_[from + 8] != '.' && nodes_[from + 8] != finished_[from]) {
-        return true;
-      }
-      return false;
+
+      // Moving down - only do it if we're of the right type.
+      return nodes_[from] == finished_[to];
     }
     if (from > 6 && from < 11) {
       if (to > 10) {
-        // Only move down if we're the right node and the bottom two rows are empty or contain the
-        // correct node.
-        if (nodes_[from + 8] != '.' && nodes_[from + 8] != finished_[to]) {
-          return false;
-        }
-        if (nodes_[from + 12] != '.' && nodes_[from + 12] != finished_[to]) {
-          return false;
-        }
+        // Only move into bottom position if we're moving the correct piece.
         return nodes_[from] == finished_[to];
       }
-      if (nodes_[from] != finished_[from]) {
-        return true;
+      // Moving to top row
+      if (to == 0 && nodes_[1] != '.') {
+        return false;
       }
-      if (nodes_[from + 4] != '.' && nodes_[from + 4] != finished_[from]) {
-        return true;
+      if (to < 2 && from > 7 && nodes_[2] != '.') {
+        return false;
       }
-      if (nodes_[from + 8] != '.' && nodes_[from + 8] != finished_[from]) {
-        return true;
+      if (to < 3 && from > 8 && nodes_[3] != '.') {
+        return false;
       }
-      if (nodes_[from + 12] != '.' && nodes_[from + 12] != finished_[from]) {
-        return true;
+      if (to < 4 && from > 9 && nodes_[4] != '.') {
+        return false;
       }
-      return false;
+
+      if (to == 6 && nodes_[5] != '.') {
+        return false;
+      }
+      if (to > 4 && from < 10 && nodes_[4] != '.') {
+        return false;
+      }
+      if (to > 3 && from < 9 && nodes_[3] != '.') {
+        return false;
+      }
+      if (to > 2 && from < 8 && nodes_[2] != '.') {
+        return false;
+      }
+
+      return true;
     }
     if (from < 7) {
-      if (to < 7) {
-        // Can do any move along the row.
-        return true;
-      }
       // Can only move down if we're the right type.
-      return nodes_[from] == finished_[to];
+      if (nodes_[from] != finished_[to]) {
+        return false;
+      }
+
+      // Now encode the rules about moving along the top.
+      if (from == 0 && nodes_[1] != '.') {
+        return false;
+      }
+      if (from < 2 && to > 7 && nodes_[2] != '.') {
+        return false;
+      }
+      if (from < 3 && to > 8 && nodes_[3] != '.') {
+        return false;
+      }
+      if (from < 4 && to > 9 && nodes_[4] != '.') {
+        return false;
+      }
+
+      if (from == 6 && nodes_[5] != '.') {
+        return false;
+      }
+      if (from > 4 && to < 10 && nodes_[4] != '.') {
+        return false;
+      }
+      if (from > 3 && to < 9 && nodes_[3] != '.') {
+        return false;
+      }
+      if (from > 2 && to < 8 && nodes_[2] != '.') {
+        return false;
+      }
+
+      return true;
     }
     abort();
   }
 
-  bool move(unsigned from, unsigned to)
+  bool move(unsigned from, unsigned to, UInt cost)
   {
     if (!check_move(from, to)) {
       return false;
     }
     std::swap(nodes_[from], nodes_[to]);
+    cost_ += cost;
     return true;
   }
 
-  constexpr bool operator<(State const& rhs) const noexcept { return nodes_ < rhs.nodes_; }
-  constexpr bool operator==(State const& rhs) const noexcept { return nodes_ < rhs.nodes_; }
-
-  constexpr static unsigned node_size{23};
+  bool operator<(State const& rhs) const noexcept { return nodes_ < rhs.nodes_; }
+  bool operator==(State const& rhs) const noexcept { return nodes_ < rhs.nodes_; }
 
 private:
-  std::array<Type, node_size> nodes_{'.'};
-  static std::array<Type, node_size> finished_;
+  std::array<Type, size_> nodes_{'.'};
+  static std::array<Type, size_> finished_;
+  UInt cost_{0};
 };
 
-std::array<Type, State::node_size> State::finished_ = {'.', '.', '.', '.', '.', '.', '.', 'A',
-                                                       'B', 'C', 'D', 'A', 'B', 'C', 'D', 'A',
-                                                       'B', 'C', 'D', 'A', 'B', 'C', 'D'};
+std::array<Type, State::size_> State::finished_ = {'.', '.', '.', '.', '.', '.', '.', 'A',
+                                                   'B', 'C', 'D', 'A', 'B', 'C', 'D', 'A',
+                                                   'B', 'C', 'D', 'A', 'B', 'C', 'D'};
 
 struct StateCmp
 {
-  constexpr bool operator()(State const* l, State const* r) const noexcept
+  bool operator()(State const* lhs, State const* rhs) const noexcept
   {
-    if (l == nullptr && r != nullptr) {
+    if (lhs == nullptr && rhs != nullptr) {
       return true;
     }
-    if (r == nullptr) {
-      return false;
+    if (rhs == nullptr) {
+      return true;
     }
-    return *l < *r;
+    return *lhs < *rhs;
+  }
+};
+
+struct CostStateCmp
+{
+  bool operator()(State const* lhs, State const* rhs) const noexcept
+  {
+    if (lhs == nullptr && rhs != nullptr) {
+      return true;
+    }
+    if (rhs == nullptr) {
+      return true;
+    }
+    return lhs->cost() < rhs->cost() || (lhs->cost() == rhs->cost() && *lhs < *rhs);
   }
 };
 
@@ -191,14 +250,6 @@ auto main() -> int
   for (unsigned i = 0; i < 4; ++i) {
     initial_state->node(7 + i) = m.str(i + 1)[0];
   }
-  initial_state->node(11) = 'D';
-  initial_state->node(12) = 'C';
-  initial_state->node(13) = 'B';
-  initial_state->node(14) = 'A';
-  initial_state->node(15) = 'D';
-  initial_state->node(16) = 'B';
-  initial_state->node(17) = 'A';
-  initial_state->node(18) = 'C';
 
   std::getline(std::cin, line);
   if (!std::regex_search(line, m, line4_re)) {
@@ -206,30 +257,49 @@ auto main() -> int
     return 1;
   }
   for (unsigned i = 0; i < 4; ++i) {
+    initial_state->node(11 + i) = m.str(i + 1)[0];
+  }
+
+  std::getline(std::cin, line);
+  if (!std::regex_search(line, m, line4_re)) {
+    std::cerr << "Unable to match line 5 " << line << '\n';
+    return 1;
+  }
+  for (unsigned i = 0; i < 4; ++i) {
+    initial_state->node(15 + i) = m.str(i + 1)[0];
+  }
+
+  std::getline(std::cin, line);
+  if (!std::regex_search(line, m, line4_re)) {
+    std::cerr << "Unable to match line 6 " << line << '\n';
+    return 1;
+  }
+  for (unsigned i = 0; i < 4; ++i) {
     initial_state->node(19 + i) = m.str(i + 1)[0];
   }
 
-  std::map<State*, UInt, StateCmp> states;
-  std::multimap<UInt, State*> costs;
-  states.insert({initial_state, 0});
-  costs.insert({0, initial_state});
+  std::set<State*, StateCmp> states;
+  std::set<State*, CostStateCmp> costs;
   std::set<State*, StateCmp> visited;
+  states.insert(initial_state);
+  costs.insert(initial_state);
 
-  while (!states.empty()) {
+  while (!costs.empty()) {
+    assert(costs.size() == states.size());
     auto it{costs.begin()};
-    if (visited.size() % 10'000 == 0) {
-      std::cout << "Visited: " << visited.size() << " number of states: " << states.size()
-                << " Min energy: " << it->first << '\n';
-    }
 
-    State* state{it->second};
-    UInt cost{it->first};
+    State* state{*it};
     visited.insert(state);
     states.erase(state);
     costs.erase(it);
 
+    if (visited.size() % 10'000 == 0) {
+      std::cout << "Visited: " << visited.size() << " number of states: " << states.size()
+                << " Min energy: " << state->cost() << '\n';
+    }
+
     if (state->finished()) {
-      std::cout << "Done with cost " << cost << '\n';
+      std::cout << "Done with cost " << state->cost() << '\n';
       return 0;
     }
 
@@ -237,36 +307,30 @@ auto main() -> int
       if (state->node(i) == '.') {
         continue;
       }
-      auto [it_begin, it_end] = legal_moves.equal_range(i);
+      auto [it_begin, it_end] = valid_moves.equal_range(i);
       for (auto move_it{it_begin}; move_it != it_end; ++move_it) {
         State* next_state = new State{*state};
-        if (next_state->move(i, move_it->second.first) && !visited.contains(next_state)) {
-          UInt next_cost = cost + move_it->second.second * multipliers[state->node(i)];
-          auto [insert_it, success] = states.insert({next_state, next_cost});
+        UInt cost_delta = move_it->second.second * multipliers[state->node(i)];
+        bool keep{false};
+        if (next_state->move(i, move_it->second.first, cost_delta) &&
+            !visited.contains(next_state)) {
+          auto [insert_it, success] = states.insert(next_state);
           if (!success) {
-            if (next_cost < insert_it->second) {
-              insert_it->second = next_cost;
-              auto [cost_begin, cost_end] = costs.equal_range(cost);
-              while (cost_begin != cost_end) {
-                if (*cost_begin->second == *next_state) {
-                  delete next_state;
-                  next_state = cost_begin->second;
-                  costs.erase(cost_begin);
-                  break;
-                }
-                ++cost_begin;
-              }
-              costs.insert({next_cost, next_state});
-            }
-            else {
-              delete next_state;
+            auto old_state{*insert_it};
+            if (next_state->cost() < old_state->cost()) {
+              keep = true;
+              costs.erase(old_state);
+              states.erase(old_state);
+              states.insert(next_state);
+              costs.insert(next_state);
             }
           }
           else {
-            costs.insert({next_cost, next_state});
+            keep = true;
+            costs.insert(next_state);
           }
         }
-        else {
+        if (!keep) {
           delete next_state;
         }
       }
