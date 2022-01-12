@@ -83,10 +83,13 @@ auto dijkstra(Node const& initial, Cost initial_cost, TransitionManager transiti
   /** \c nodes maintains a map of all the nodes we've visited or want to visit.  Nodes that cost
    * less than the current cost at the front of costs have been visited.  The rest haven't.
    */
-  std::map<Node const*, Cost, NodePCmp> nodes;
+  std::map<Node const*, std::pair<Cost, Node const*>, NodePCmp> nodes;
   /** \c costs maintains a map of costs to the nodes that cost that much to visit. */
   std::map<Cost, std::unordered_set<Node const*>> costs;
-  Cost current_cost{std::numeric_limits<Cost>::min()};
+  Cost current_cost{initial_cost};
+  Node const* current_node{new Node(initial)};
+  nodes.insert({current_node, {current_cost, nullptr}});
+  costs.insert({current_cost, {current_node}});
 
   /* Helper lambda to clean up after ourselves.  */
   auto cleanup = [](auto& nodes) {
@@ -96,37 +99,34 @@ auto dijkstra(Node const& initial, Cost initial_cost, TransitionManager transiti
   };
 
   /* Helper lambda to insert into the maps.  */
-  auto inserter = [&costs, &nodes, &current_cost](Node const& node, Cost cost) {
+  auto inserter = [&costs, &nodes, &current_node, &current_cost](Node const& node, Cost cost) {
     cost += current_cost;
     auto node_it{nodes.find(&node)};
     /* Skip inserting nodes we've already visited, or that would cost more to visit.  */
-    if (node_it != nodes.end() && node_it->second <= cost) {
+    if (node_it != nodes.end() && node_it->second.first <= cost) {
       return;
     }
 
     Node const* nodep{nullptr};
     if (node_it == nodes.end()) {
       nodep = new Node(node);
-      nodes.insert({nodep, cost});
+      nodes.insert({nodep, {cost, current_node}});
     }
     else {
       /* Node has a cheaper cost than we thought: Remove the node from its old cost list */
       nodep = node_it->first;
-      auto cost_it{costs.find(node_it->second)};
+      auto cost_it{costs.find(node_it->second.first)};
       assert(cost_it != costs.end());
       cost_it->second.erase(nodep);
 
       /* Now update the cost in the nodes map and use the nodep as the node pointer.  */
-      node_it->second = cost;
+      node_it->second.first = cost;
+      node_it->second.second = current_node;
     }
 
     auto [cost_it, success] = costs.insert({cost, {}});
     cost_it->second.insert(nodep);
   };
-
-  Node* init{new Node(initial)};
-  nodes.insert({init, initial_cost});
-  costs.insert({initial_cost, {init}});
 
   std::uint64_t iter{0};
   while (!costs.empty()) {
@@ -137,6 +137,7 @@ auto dijkstra(Node const& initial, Cost initial_cost, TransitionManager transiti
              return a + c.second.size();
            }) == nodes.size() - iter);
     for (auto& nodep : cost_it->second) {
+      current_node = nodep;
       if (iter++ % 100'000 == 0) {
         std::cout << "Iteration: " << iter << " cost " << current_cost
                   << " total number of nodes: " << nodes.size()
@@ -145,6 +146,13 @@ auto dijkstra(Node const& initial, Cost initial_cost, TransitionManager transiti
       }
       if (transition_manager.is_finished(*nodep)) {
         auto result{std::make_pair(*nodep, current_cost)};
+        /* Print the backtrace.  */
+        Node const* n{nodep};
+        while (n != nullptr) {
+          auto node_it{nodes.find(n)};
+          std::cout << "Cost: " << node_it->second.first << ":\n" << *n;
+          n = node_it->second.second;
+        }
         cleanup(nodes);
         return result;
       }

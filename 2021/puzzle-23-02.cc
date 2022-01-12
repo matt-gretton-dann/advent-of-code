@@ -191,6 +191,20 @@ std::array<Type, State::size_> State::finished_ = {'.', '.', '.', '.', '.', '.',
                                                    'B', 'C', 'D', 'A', 'B', 'C', 'D', 'A',
                                                    'B', 'C', 'D', 'A', 'B', 'C', 'D'};
 
+
+std::ostream& operator<<(std::ostream& os, State const& s)
+{
+  os << "#############\n"
+     << '#' << s.node(0) << s.node(1) << '.' << s.node(2) << '.' << s.node(3) << '.' << s.node(4)
+     << '.' << s.node(5) << s.node(6) << "#\n"
+     << "###" << s.node(7) << '#' << s.node(8) << '#' << s.node(9) << '#' << s.node(10) << "###\n"
+     << "  #" << s.node(11) << '#' << s.node(12) << '#' << s.node(13) << '#' << s.node(14) << "#\n"
+     << "  #" << s.node(15) << '#' << s.node(16) << '#' << s.node(17) << '#' << s.node(18) << "#\n"
+     << "  #" << s.node(19) << '#' << s.node(20) << '#' << s.node(21) << '#' << s.node(22) << "#\n"
+     << "  #########\n";
+
+  return os;
+}
 struct StateTranstitionManager
 {
   bool is_finished(State const& state) { return state.finished(); }
