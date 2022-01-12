@@ -2,10 +2,13 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <regex>
 #include <set>
 #include <string>
+
+#include "graph-utils.h"
 
 // Map:
 // #############
@@ -166,31 +169,27 @@ private:
 std::array<Type, 15> State::finished_ = {'.', '.', '.', '.', '.', '.', '.', 'A',
                                          'B', 'C', 'D', 'A', 'B', 'C', 'D'};
 
-struct StateCmp
+struct StateTranstitionManager
 {
-  bool operator()(State const* lhs, State const* rhs) const noexcept
-  {
-    if (lhs == nullptr && rhs != nullptr) {
-      return true;
-    }
-    if (rhs == nullptr) {
-      return true;
-    }
-    return *lhs < *rhs;
-  }
-};
+  bool is_finished(State const& state) { return state.finished(); }
 
-struct CostStateCmp
-{
-  bool operator()(State const* lhs, State const* rhs) const noexcept
+  template<typename Inserter>
+  void generate_children(State const& state, Inserter inserter)
   {
-    if (lhs == nullptr && rhs != nullptr) {
-      return true;
+    for (unsigned i = 0; i < state.size(); ++i) {
+      if (state.node(i) == '.') {
+        continue;
+      }
+
+      auto [it_begin, it_end] = valid_moves.equal_range(i);
+      for (auto move_it{it_begin}; move_it != it_end; ++move_it) {
+        State next_state(state);
+        UInt cost_delta = move_it->second.second * multipliers[state.node(i)];
+        if (next_state.move(i, move_it->second.first, cost_delta)) {
+          inserter(next_state, cost_delta);
+        }
+      }
     }
-    if (rhs == nullptr) {
-      return true;
-    }
-    return lhs->cost() < rhs->cost() || (lhs->cost() == rhs->cost() && *lhs < *rhs);
   }
 };
 
@@ -207,7 +206,7 @@ auto main() -> int
     std::cerr << "Incorrect first line.\n";
     return 1;
   }
-  State* initial_state = new State;
+  State initial_state{};
 
   std::getline(std::cin, line);
   if (!std::regex_search(line, m, line2_re)) {
@@ -215,7 +214,7 @@ auto main() -> int
     return 1;
   }
   for (unsigned i = 0; i < 7; ++i) {
-    initial_state->node(i) = m.str(i + 1)[0];
+    initial_state.node(i) = m.str(i + 1)[0];
   }
 
   std::getline(std::cin, line);
@@ -224,7 +223,7 @@ auto main() -> int
     return 1;
   }
   for (unsigned i = 0; i < 4; ++i) {
-    initial_state->node(7 + i) = m.str(i + 1)[0];
+    initial_state.node(7 + i) = m.str(i + 1)[0];
   }
 
   std::getline(std::cin, line);
@@ -233,68 +232,11 @@ auto main() -> int
     return 1;
   }
   for (unsigned i = 0; i < 4; ++i) {
-    initial_state->node(11 + i) = m.str(i + 1)[0];
+    initial_state.node(11 + i) = m.str(i + 1)[0];
   }
 
-  std::set<State*, StateCmp> states;
-  std::set<State*, CostStateCmp> costs;
-  std::set<State*, StateCmp> visited;
-  states.insert(initial_state);
-  costs.insert(initial_state);
-
-  while (!costs.empty()) {
-    assert(costs.size() == states.size());
-    auto it{costs.begin()};
-
-    State* state{*it};
-    visited.insert(state);
-    states.erase(state);
-    costs.erase(it);
-
-    if (visited.size() % 10'000 == 0) {
-      std::cout << "Visited: " << visited.size() << " number of states: " << states.size()
-                << " Min energy: " << state->cost() << '\n';
-    }
-
-    if (state->finished()) {
-      std::cout << "Done with cost " << state->cost() << '\n';
-      return 0;
-    }
-
-    for (unsigned i = 0; i < state->size(); ++i) {
-      if (state->node(i) == '.') {
-        continue;
-      }
-      auto [it_begin, it_end] = valid_moves.equal_range(i);
-      for (auto move_it{it_begin}; move_it != it_end; ++move_it) {
-        State* next_state = new State{*state};
-        UInt cost_delta = move_it->second.second * multipliers[state->node(i)];
-        bool keep{false};
-        if (next_state->move(i, move_it->second.first, cost_delta) &&
-            !visited.contains(next_state)) {
-          auto [insert_it, success] = states.insert(next_state);
-          if (!success) {
-            auto old_state{*insert_it};
-            if (next_state->cost() < old_state->cost()) {
-              keep = true;
-              costs.erase(old_state);
-              states.erase(old_state);
-              states.insert(next_state);
-              costs.insert(next_state);
-            }
-          }
-          else {
-            keep = true;
-            costs.insert(next_state);
-          }
-        }
-        if (!keep) {
-          delete next_state;
-        }
-      }
-    }
-  }
-
-  std::cerr << "FAILED\n";
-  return 1;
+  auto [finished_state, finished_cost] =
+    dijkstra(initial_state, UInt{0}, StateTranstitionManager{});
+  std::cout << "Done with cost " << finished_cost << '\n';
+  return 0;
 }
