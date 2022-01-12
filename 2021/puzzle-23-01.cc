@@ -32,17 +32,121 @@ using Position = char;
 using UInt = int;
 using Type = char;
 
-std::multimap<Position, std::pair<Position, UInt>> valid_moves{
-  {0, {7, 3}},  {0, {8, 5}},  {0, {9, 7}},  {0, {10, 9}},  {1, {7, 2}},  {1, {8, 4}},  {1, {9, 6}},
-  {1, {10, 8}}, {2, {7, 2}},  {2, {8, 2}},  {2, {9, 4}},   {2, {10, 6}}, {3, {7, 4}},  {3, {8, 2}},
-  {3, {9, 2}},  {3, {10, 4}}, {4, {7, 6}},  {4, {8, 4}},   {4, {9, 2}},  {4, {10, 2}}, {5, {7, 8}},
-  {5, {8, 6}},  {5, {9, 4}},  {5, {10, 2}}, {6, {7, 9}},   {6, {8, 7}},  {6, {9, 5}},  {6, {10, 3}},
-  {7, {0, 3}},  {7, {1, 2}},  {7, {2, 2}},  {7, {3, 4}},   {7, {4, 6}},  {7, {5, 8}},  {7, {6, 9}},
-  {7, {11, 1}}, {8, {0, 5}},  {8, {1, 4}},  {8, {2, 2}},   {8, {3, 2}},  {8, {4, 4}},  {8, {5, 6}},
-  {8, {6, 7}},  {8, {12, 1}}, {9, {0, 7}},  {9, {1, 6}},   {9, {2, 4}},  {9, {3, 2}},  {9, {4, 2}},
-  {9, {5, 4}},  {9, {6, 5}},  {9, {13, 1}}, {10, {0, 9}},  {10, {1, 8}}, {10, {2, 6}}, {10, {3, 4}},
-  {10, {4, 2}}, {10, {5, 2}}, {10, {6, 3}}, {10, {14, 1}}, {11, {7, 1}}, {12, {8, 1}}, {13, {9, 1}},
-  {14, {10, 1}}};
+std::multimap<Position, std::pair<std::vector<Position>, UInt>> valid_moves{
+  {0, {{1, 7}, 3}},
+  {0, {{1, 2, 8}, 5}},
+  {0, {{1, 2, 3, 9}, 7}},
+  {0, {{1, 2, 3, 4, 10}, 9}},
+  {0, {{1, 7, 11}, 4}},
+  {0, {{1, 2, 8, 12}, 6}},
+  {0, {{1, 2, 3, 9, 13}, 8}},
+  {0, {{1, 2, 3, 4, 10, 14}, 10}},
+  {1, {{7}, 2}},
+  {1, {{2, 8}, 4}},
+  {1, {{2, 3, 9}, 6}},
+  {1, {{2, 3, 4, 10}, 8}},
+  {1, {{7, 11}, 3}},
+  {1, {{2, 8, 12}, 5}},
+  {1, {{2, 3, 9, 13}, 7}},
+  {1, {{2, 3, 4, 10, 14}, 9}},
+  {2, {{7}, 2}},
+  {2, {{8}, 2}},
+  {2, {{3, 9}, 4}},
+  {2, {{3, 4, 10}, 6}},
+  {2, {{7, 11}, 3}},
+  {2, {{8, 12}, 3}},
+  {2, {{3, 9, 13}, 5}},
+  {2, {{3, 4, 10, 14}, 7}},
+  {3, {{2, 7}, 4}},
+  {3, {{8}, 2}},
+  {3, {{9}, 2}},
+  {3, {{4, 10}, 4}},
+  {3, {{2, 7, 11}, 5}},
+  {3, {{8, 12}, 3}},
+  {3, {{9, 13}, 3}},
+  {3, {{4, 10, 14}, 5}},
+  {4, {{3, 2, 7}, 6}},
+  {4, {{3, 8}, 4}},
+  {4, {{9}, 2}},
+  {4, {{10}, 2}},
+  {4, {{3, 2, 7, 11}, 7}},
+  {4, {{3, 8, 12}, 5}},
+  {4, {{9, 13}, 3}},
+  {4, {{10, 14}, 3}},
+  {5, {{4, 3, 2, 7}, 8}},
+  {5, {{4, 3, 8}, 6}},
+  {5, {{4, 9}, 4}},
+  {5, {{10}, 2}},
+  {5, {{4, 3, 2, 7, 11}, 9}},
+  {5, {{4, 3, 8, 12}, 7}},
+  {5, {{4, 9, 13}, 5}},
+  {5, {{10, 14}, 3}},
+  {6, {{5, 4, 3, 2, 7}, 9}},
+  {6, {{5, 4, 3, 8}, 7}},
+  {6, {{5, 4, 9}, 5}},
+  {6, {{5, 10}, 3}},
+  {6, {{5, 4, 3, 2, 7, 11}, 10}},
+  {6, {{5, 4, 3, 8, 12}, 8}},
+  {6, {{5, 4, 9, 13}, 6}},
+  {6, {{5, 10, 14}, 4}},
+
+  {7, {{1, 0}, 3}},
+  {7, {{1}, 2}},
+  {7, {{2}, 2}},
+  {7, {{2, 3}, 4}},
+  {7, {{2, 3, 4}, 6}},
+  {7, {{2, 3, 4, 5}, 8}},
+  {7, {{2, 3, 4, 5, 6}, 9}},
+  {8, {{2, 1, 0}, 5}},
+  {8, {{2, 1}, 4}},
+  {8, {{2}, 2}},
+  {8, {{3}, 2}},
+  {8, {{3, 4}, 4}},
+  {8, {{3, 4, 5}, 6}},
+  {8, {{3, 4, 5, 6}, 7}},
+  {9, {{3, 2, 1, 0}, 7}},
+  {9, {{3, 2, 1}, 6}},
+  {9, {{3, 2}, 4}},
+  {9, {{3}, 2}},
+  {9, {{4}, 2}},
+  {9, {{4, 5}, 4}},
+  {9, {{4, 5, 6}, 5}},
+  {10, {{4, 3, 2, 1, 0}, 9}},
+  {10, {{4, 3, 2, 1}, 8}},
+  {10, {{4, 3, 2}, 6}},
+  {10, {{4, 3}, 4}},
+  {10, {{4}, 2}},
+  {10, {{5}, 2}},
+  {10, {{5, 6}, 3}},
+  {11, {{7, 1, 0}, 4}},
+  {11, {{7, 1}, 3}},
+  {11, {{7, 2}, 3}},
+  {11, {{7, 2, 3}, 5}},
+  {11, {{7, 2, 3, 4}, 7}},
+  {11, {{7, 2, 3, 4, 5}, 9}},
+  {11, {{7, 2, 3, 4, 5, 6}, 10}},
+  {12, {{8, 2, 1, 0}, 6}},
+  {12, {{8, 2, 1}, 5}},
+  {12, {{8, 2}, 3}},
+  {12, {{8, 3}, 3}},
+  {12, {{8, 3, 4}, 5}},
+  {12, {{8, 3, 4, 5}, 7}},
+  {12, {{8, 3, 4, 5, 6}, 8}},
+  {13, {{9, 3, 2, 1, 0}, 8}},
+  {13, {{9, 3, 2, 1}, 7}},
+  {13, {{9, 3, 2}, 5}},
+  {13, {{9, 3}, 3}},
+  {13, {{9, 4}, 3}},
+  {13, {{9, 4, 5}, 5}},
+  {13, {{9, 4, 5, 6}, 7}},
+  {14, {{10, 4, 3, 2, 1, 0}, 10}},
+  {14, {{10, 4, 3, 2, 1}, 9}},
+  {14, {{10, 4, 3, 2}, 7}},
+  {14, {{10, 4, 3}, 5}},
+  {14, {{10, 4}, 3}},
+  {14, {{10, 5}, 3}},
+  {14, {{10, 5, 6}, 4}},
+};
 
 std::map<Type, UInt> multipliers{{'A', 1}, {'B', 10}, {'C', 100}, {'D', 1000}};
 
@@ -56,18 +160,6 @@ struct State
 
   bool check_move(unsigned from, unsigned to)
   {
-    if (from < 7) {
-      assert(to > 6 && to < 11);
-    }
-    else if (from > 6 & from < 11) {
-      assert(to < 7 || (to > 10 && to < 15));
-    }
-    else if (from > 10 && from < 15) {
-      assert(to > 6 && to < 11);
-    }
-    else {
-      assert(false);
-    }
     if (nodes_[from] == '.' || nodes_[to] != '.') {
       return false;
     }
@@ -76,72 +168,22 @@ struct State
       return nodes_[from] != finished_[from];
     }
     if (from > 6 && from < 11) {
-      if (to > 10) {
-        // Only move into bottom position if we're moving the correct piece.
-        return nodes_[from] == finished_[to];
-      }
-      // Moving to top row
-      if (to == 0 && nodes_[1] != '.') {
-        return false;
-      }
-      if (to < 2 && from > 7 && nodes_[2] != '.') {
-        return false;
-      }
-      if (to < 3 && from > 8 && nodes_[3] != '.') {
-        return false;
-      }
-      if (to < 4 && from > 9 && nodes_[4] != '.') {
-        return false;
-      }
-
-      if (to == 6 && nodes_[5] != '.') {
-        return false;
-      }
-      if (to > 4 && from < 10 && nodes_[4] != '.') {
-        return false;
-      }
-      if (to > 3 && from < 9 && nodes_[3] != '.') {
-        return false;
-      }
-      if (to > 2 && from < 8 && nodes_[2] != '.') {
-        return false;
-      }
-
-      return true;
+      // Only move out of the bottom row if we or the node below us is not meant to be there.
+      return nodes_[from] != finished_[from] || nodes_[from + 4] != finished_[from];
     }
     if (from < 7) {
-      // Can only move down if we're the right type.
       if (nodes_[from] != finished_[to]) {
         return false;
       }
-
-      // Now encode the rules about moving along the top.
-      if (from == 0 && nodes_[1] != '.') {
-        return false;
+      while (to > 10) {
+        to -= 4;
       }
-      if (from < 2 && to > 7 && nodes_[2] != '.') {
-        return false;
+      while (to < 15) {
+        if (nodes_[to] != '.' && nodes_[to] != finished_[to]) {
+          return false;
+        }
+        to += 4;
       }
-      if (from < 3 && to > 8 && nodes_[3] != '.') {
-        return false;
-      }
-      if (from < 4 && to > 9 && nodes_[4] != '.') {
-        return false;
-      }
-
-      if (from == 6 && nodes_[5] != '.') {
-        return false;
-      }
-      if (from > 4 && to < 10 && nodes_[4] != '.') {
-        return false;
-      }
-      if (from > 3 && to < 9 && nodes_[3] != '.') {
-        return false;
-      }
-      if (from > 2 && to < 8 && nodes_[2] != '.') {
-        return false;
-      }
-
       return true;
     }
     abort();
@@ -196,9 +238,18 @@ struct StateTranstitionManager
       auto [it_begin, it_end] = valid_moves.equal_range(i);
       for (auto move_it{it_begin}; move_it != it_end; ++move_it) {
         State next_state(state);
-        UInt cost_delta = move_it->second.second * multipliers[state.node(i)];
-        if (next_state.move(i, move_it->second.first, cost_delta)) {
-          inserter(next_state, cost_delta);
+        bool cont = true;
+        for (auto pos_it : move_it->second.first) {
+          if (state.node(pos_it) != '.') {
+            cont = false;
+            break;
+          }
+        }
+        if (cont) {
+          UInt cost_delta = move_it->second.second * multipliers[state.node(i)];
+          if (next_state.move(i, move_it->second.first.back(), cost_delta)) {
+            inserter(next_state, cost_delta);
+          }
         }
       }
     }
