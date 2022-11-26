@@ -1,0 +1,31 @@
+Optype  Correction  Offset    z = 0
+
+1   Push    12          6         ; push (w1 + 6)
+2   Push    10          6         ; push (w2 + 6)
+3   Push    13          3         ; push (w3 + 3)
+4   Pop     -11         11        ; pop (w3 + 3); w4 = w3 + 3 - 11 = w3 - 8;
+5   Push    13          9         ; z = (w5 + 9)
+6   Pop     -1          3         ; pop (w5 + 9); w6 = w5 + 9 - 1 = w5 + 8;
+7   Push    10          13        ; z = (w7 + 13)
+8   Push    11          6         ; z = (w8 + 6)
+9   Pop     0           14        ; pop (w8 + 6); w9 = w8 + 6 - 0;
+10  Push    10          10        ; z = (w10 + 10)
+11  Pop     -5          12        ; pop (w10 + 10); w11 = w10 + 10 - 5 = w10 + 5;
+12  Pop     -16         10        ; pop (w7 + 13); w12 = w7 + 13 - 16 = w12 = w7 - 3
+13  Pop     -7          11        ; pop (w2 + 6); w13 = w2 + 6 - 7 = w2 - 1;
+14  Pop     -11         15        ; pop (w1 + 6); w14 = w1 + 6 - 11 = w1 - 5;
+
+w1 = 9
+w2 = 9
+w3 = 9
+w4 = 1
+w5 = 1
+w6 = 9
+w7 = 9
+w8 = 3
+w9 = 9
+w10 = 4
+w11 = 9
+w12 = 6
+w13 = 8
+w13 = 4
