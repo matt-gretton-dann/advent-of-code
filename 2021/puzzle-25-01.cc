@@ -3,8 +3,6 @@
 #include <regex>
 #include <string>
 
-using Int = unsigned long;
-
 struct State
 {
   void add_line(std::string const& line)
@@ -20,13 +18,13 @@ struct State
     }
   }
 
-  State move_right() const
+  [[nodiscard]] auto move_right() const noexcept -> State
   {
     State result{*this};
     for (std::size_t row{0}; row < lines_.size(); ++row) {
       for (std::size_t col{0}; col < lines_[row].size(); ++col) {
         auto from = lines_[row][col];
-        auto to = lines_[row].at((col + 1) % lines_[row].size());
+        auto to = lines_[row][(col + 1) % lines_[row].size()];
         if (from == '>' && to == '.') {
           result.lines_[row][(col + 1) % lines_[row].size()] = '>';
           result.lines_[row][col] = '.';
@@ -36,7 +34,7 @@ struct State
     return result;
   }
 
-  State move_down() const
+  [[nodiscard]] auto move_down() const noexcept -> State
   {
     State result{*this};
     for (std::size_t row{0}; row < lines_.size(); ++row) {
@@ -53,7 +51,7 @@ struct State
     return result;
   }
 
-  bool operator==(State const& rhs) const noexcept { return lines_ == rhs.lines_; }
+  auto operator==(State const& rhs) const noexcept -> bool { return lines_ == rhs.lines_; }
 
 private:
   std::vector<std::string> lines_;
