@@ -2,7 +2,6 @@
 // Created by Matthew Gretton-Dann on 07/12/2022.
 //
 
-#include <algorithm>
 #include <iostream>
 #include <list>
 #include <map>
@@ -14,11 +13,11 @@ using UInt = std::uint64_t;
 
 struct DirectoryInfo
 {
-  auto total_size() const noexcept -> UInt
+  [[nodiscard]] auto total_size() const noexcept -> UInt
   {
-    UInt file_size{std::accumulate(files_.begin(), files_.end(), UInt{0},
-                                   [](UInt a, auto const& b) { return a + b.second; })};
-    UInt directory_size{
+    UInt const file_size{std::accumulate(files_.begin(), files_.end(), UInt{0},
+                                         [](UInt a, auto const& b) { return a + b.second; })};
+    UInt const directory_size{
       std::accumulate(dirs_.begin(), dirs_.end(), UInt{0},
                       [](UInt a, auto const& b) { return a + b.second.total_size(); })};
     return file_size + directory_size;
@@ -88,7 +87,7 @@ auto main() -> int
       std::smatch m;
       if (!std::regex_search(line, m, re)) {
         std::cerr << "Unable to interpret: " << line << "\n";
-        std::exit(1);
+        return EXIT_FAILURE;
       }
       its.back()->second.add_file(m.str(2), std::stoul(m.str(1)));
     }

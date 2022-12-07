@@ -2,7 +2,6 @@
 // Created by Matthew Gretton-Dann on 07/12/2022.
 //
 
-#include <algorithm>
 #include <iostream>
 #include <list>
 #include <map>
@@ -14,11 +13,11 @@ using UInt = std::uint64_t;
 
 struct DirectoryInfo
 {
-  auto total_size() const noexcept -> UInt
+  [[nodiscard]] auto total_size() const noexcept -> UInt
   {
-    UInt file_size{std::accumulate(files_.begin(), files_.end(), UInt{0},
-                                   [](UInt a, auto const& b) { return a + b.second; })};
-    UInt directory_size{
+    UInt const file_size{std::accumulate(files_.begin(), files_.end(), UInt{0},
+                                         [](UInt a, auto const& b) { return a + b.second; })};
+    UInt const directory_size{
       std::accumulate(dirs_.begin(), dirs_.end(), UInt{0},
                       [](UInt a, auto const& b) { return a + b.second.total_size(); })};
     return file_size + directory_size;
@@ -99,8 +98,8 @@ auto main() -> int
 
   UInt constexpr disk_size{70000000};
   UInt constexpr needed_space{30000000};
-  UInt current_space{disk_size - root->second.total_size()};
-  UInt min_space_to_free(needed_space - current_space);
+  UInt const current_space{disk_size - root->second.total_size()};
+  UInt const min_space_to_free(needed_space - current_space);
   std::cout << "Size to free: " << size_to_free(root, min_space_to_free) << '\n';
   return 0;
 }
