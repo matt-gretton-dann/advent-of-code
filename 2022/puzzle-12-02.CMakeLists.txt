@@ -1,0 +1,1 @@
+target_sources("${puzzle_name}" PRIVATE 2022/graph-utils.h)
