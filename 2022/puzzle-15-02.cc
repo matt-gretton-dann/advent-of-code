@@ -49,10 +49,6 @@ auto main() -> int
   }
 
   for (Int row{0}; row < max_row; ++row) {
-    if (row % 100'000 == 0) {
-      std::cout << " Row: " << row << "\n";
-      std::flush(std::cout);
-    }
     std::set<Range, RangeCompare> ranges;
 
     for (auto const& sensor : sensors) {
@@ -74,36 +70,19 @@ auto main() -> int
     }
 
     Int last_pos{0};
-    UInt count{0};
     for (auto const& r : ranges) {
       assert(r.first < r.second);
       if (r.second < last_pos) {
         continue;
       }
-      auto b{std::max(r.first, last_pos)};
-      auto e{std::min(r.second, max_row)};
-      count += (e - b);
-      last_pos = e;
-    }
-
-    if (count != max_row) {
-      std::cout << "Row interested in: " << row << "\n";
-      std::cout << "Count = " << count << "\n";
-      Int gap{0};
-      for (auto const& r : ranges) {
-        assert(r.first < r.second);
-        if (r.second < gap) {
-          continue;
-        }
-        if (r.first > gap) {
-          std::cout << " Gap in " << gap << " - " << r.first << "\n";
-          std::cout << "Score = " << gap * 4000000 + row << "\n";
-        }
-        gap = std::min(r.second, max_row);
+      if (r.first > last_pos) {
+        std::cout << " Gap in " << last_pos << " - " << r.first << "\n";
+        std::cout << "Score = " << last_pos * 4000000 + row << "\n";
+        return EXIT_SUCCESS;
       }
-      return EXIT_SUCCESS;
+
+      last_pos = std::min(r.second, max_row);
     }
   }
-
   return EXIT_FAILURE;
 }
