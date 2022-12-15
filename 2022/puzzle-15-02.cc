@@ -7,8 +7,8 @@
 #include <list>
 #include <numeric>
 #include <regex>
-#include <set>
 #include <utility>
+#include <vector>
 
 using Int = std::int64_t;
 using UInt = std::uint64_t;
@@ -49,7 +49,8 @@ auto main() -> int
   }
 
   for (Int row{0}; row < max_row; ++row) {
-    std::set<Range, RangeCompare> ranges;
+    std::vector<Range> ranges;
+    ranges.reserve(sensors.size());
 
     for (auto const& sensor : sensors) {
       Int const sx{sensor.first.first};
@@ -65,9 +66,10 @@ auto main() -> int
       if (row_dist <= dist) {
         Int const x_dist{dist - row_dist};
         Range const missing{sx - x_dist, sx + x_dist + 1};
-        ranges.insert(missing);
+        ranges.emplace_back(missing);
       }
     }
+    std::sort(ranges.begin(), ranges.end(), RangeCompare{});
 
     Int last_pos{0};
     for (auto const& r : ranges) {
