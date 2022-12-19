@@ -12,11 +12,8 @@
 #include <stdexcept>
 #include <utility>
 
-using Int = std::int64_t;
-using UInt = std::uint64_t;
-using Point3 = std::tuple<UInt, UInt, UInt>;
-
-using namespace std::string_literals;
+using Int = std::int32_t;
+using UInt = std::uint32_t;
 
 enum Resources { Ore, Clay, Obsidian, Geode };
 UInt constexpr ORE{0};
@@ -48,8 +45,8 @@ struct State
 {
   State() : resources_available_({0, 0, 0, 0}), robots_available_({1, 0, 0, 0}) {}
 
-  std::array<UInt, resource_count> resources_available_;
-  std::array<UInt, resource_count> robots_available_;
+  std::array<uint8_t, resource_count> resources_available_;
+  std::array<uint8_t, resource_count> robots_available_;
 };
 
 struct StateCompare
@@ -78,18 +75,23 @@ using StateSet = std::set<State, StateCompare>;
 
 auto generate(Costs const& costs) -> UInt
 {
-  UInt max_geode_count{0};
-  constexpr UInt total_time{24};
+  constexpr UInt total_time{32};
   StateSet next_states;
   next_states.insert(State{});
 
   for (UInt t{0}; t < total_time; ++t) {
+    std::cout << "Time " << t << ": " << next_states.size() << " states to consider.\n";
     StateSet const current_states{std::move(next_states)};
     next_states = StateSet{};
 
     for (auto const& state : current_states) {
       // Let's build a robot:
+      auto built{0};
+      auto robots{0};
       for (UInt robot{0}; robot < resource_count; ++robot) {
+        if (state.robots_available_[robot] != 0) {
+          ++robots;
+        }
         bool build{true};
         for (UInt resource{0}; resource < resource_count; ++resource) {
           if (costs.costs_[robot][resource] > state.resources_available_[resource]) {
@@ -97,34 +99,34 @@ auto generate(Costs const& costs) -> UInt
           }
         }
         if (build) {
+          ++built;
           State new_state{state};
           for (UInt resource{0}; resource < resource_count; ++resource) {
             new_state.resources_available_[resource] -= costs.costs_[robot][resource];
             new_state.resources_available_[resource] += state.robots_available_[resource];
           }
           new_state.robots_available_[robot] += 1;
-          auto [it, success] = next_states.insert(new_state);
-          if (success) {
-            // See if this is the best state we've seen:
-            max_geode_count = std::max(max_geode_count, new_state.resources_available_[GEODE]);
-          }
+          next_states.insert(new_state);
         }
       }
 
-      // Now build a robot that just collects:
-      State new_state{state};
-      for (UInt resource{0}; resource < resource_count; ++resource) {
-        new_state.resources_available_[resource] += state.robots_available_[resource];
-      }
-      auto [it, success] = next_states.insert(new_state);
-      if (success) {
-        // See if this is the best state we've seen:
-        max_geode_count = std::max(max_geode_count, new_state.resources_available_[GEODE]);
+      if (built != robots) {
+        // Now build a robot that just collects:
+        State new_state{state};
+        for (UInt resource{0}; resource < resource_count; ++resource) {
+          new_state.resources_available_[resource] += state.robots_available_[resource];
+        }
+        next_states.insert(new_state);
       }
     }
   }
 
-  return max_geode_count;
+  auto const& max_elt =
+    *std::max_element(next_states.begin(), next_states.end(), [](auto const& l, auto const& r) {
+      return l.resources_available_[GEODE] < r.resources_available_[GEODE];
+    });
+
+  return max_elt.resources_available_[GEODE];
 }
 
 auto main() -> int
@@ -142,25 +144,26 @@ auto main() -> int
       return EXIT_FAILURE;
     }
 
-    UInt id{std::stoull(m.str(1))};
+    UInt id{static_cast<UInt>(std::stoul(m.str(1)))};
     Costs costs;
-    costs.costs_[ORE][ORE] = std::stoull(m.str(2));
-    costs.costs_[CLAY][ORE] = std::stoull(m.str(3));
-    costs.costs_[OBSIDIAN][ORE] = std::stoull(m.str(4));
-    costs.costs_[OBSIDIAN][CLAY] = std::stoull(m.str(5));
-    costs.costs_[GEODE][ORE] = std::stoull(m.str(6));
-    costs.costs_[GEODE][OBSIDIAN] = std::stoull(m.str(7));
+    costs.costs_[ORE][ORE] = static_cast<UInt>(std::stoul(m.str(2)));
+    costs.costs_[CLAY][ORE] = static_cast<UInt>(std::stoul(m.str(3)));
+    costs.costs_[OBSIDIAN][ORE] = static_cast<UInt>(std::stoul(m.str(4)));
+    costs.costs_[OBSIDIAN][CLAY] = static_cast<UInt>(std::stoul(m.str(5)));
+    costs.costs_[GEODE][ORE] = static_cast<UInt>(std::stoul(m.str(6)));
+    costs.costs_[GEODE][OBSIDIAN] = static_cast<UInt>(std::stoul(m.str(7)));
 
     cost_map.insert({id, costs});
   }
 
-  UInt total_quality{0};
-  for (auto const& costs : cost_map) {
-    auto result{generate(costs.second)};
-    std::cout << "For ID " << costs.first << " result is: " << result << "\n";
-    total_quality += costs.first * result;
+  UInt geode_count{1};
+  for (UInt i{1}; i <= 3; ++i) {
+    auto costs{cost_map.find(i)};
+    auto result{generate(costs->second)};
+    std::cout << "For ID " << costs->first << " result is: " << result << "\n";
+    geode_count *= result;
   }
 
-  std::cout << "Total quality: " << total_quality << "\n";
+  std::cout << "Total quality: " << geode_count << "\n";
   return EXIT_SUCCESS;
 }
