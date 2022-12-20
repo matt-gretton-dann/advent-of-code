@@ -6,16 +6,13 @@
 #include <iostream>
 #include <list>
 #include <map>
-#include <numeric>
 #include <regex>
 #include <set>
-#include <stdexcept>
 #include <utility>
 
 using Int = std::int32_t;
 using UInt = std::uint32_t;
 
-enum Resources { Ore, Clay, Obsidian, Geode };
 UInt constexpr ORE{0};
 UInt constexpr CLAY{1};
 UInt constexpr OBSIDIAN{2};
@@ -49,25 +46,34 @@ struct State
   std::array<uint8_t, resource_count> robots_available_;
 };
 
+template<typename It1, typename It2>
+auto compare_3way(It1 first1, It1 last1, It2 first2, It2 last2) -> std::strong_ordering
+{
+  for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
+    if (*first1 < *first2) {
+      return std::strong_ordering::less;
+    }
+    if (*first1 > *first2) {
+      return std::strong_ordering::greater;
+    }
+  }
+  if (first1 == last1) {
+    return first2 == last2 ? std::strong_ordering::equal : std::strong_ordering::less;
+  }
+  return std::strong_ordering::greater;
+}
+
 struct StateCompare
 {
   auto operator()(State const& lhs, State const& rhs) const noexcept -> bool
   {
-    for (UInt r{0}; r < resource_count; ++r) {
-      if (lhs.resources_available_[r] < rhs.resources_available_[r]) {
-        return true;
-      }
-      if (lhs.resources_available_[r] > rhs.resources_available_[r]) {
-        return false;
-      }
-      if (lhs.robots_available_[r] < rhs.robots_available_[r]) {
-        return true;
-      }
-      if (lhs.robots_available_[r] > rhs.robots_available_[r]) {
-        return false;
-      }
+    auto order = compare_3way(lhs.resources_available_.begin(), lhs.resources_available_.end(),
+                              rhs.resources_available_.begin(), rhs.resources_available_.end());
+    if (order != std::strong_ordering::equal) {
+      return order == std::strong_ordering::less;
     }
-    return false;
+    return std::lexicographical_compare(lhs.robots_available_.begin(), lhs.robots_available_.end(),
+                                        rhs.robots_available_.begin(), rhs.robots_available_.end());
   }
 };
 
@@ -75,8 +81,22 @@ using StateSet = std::set<State, StateCompare>;
 
 auto generate(Costs const& costs) -> UInt
 {
-  constexpr UInt total_time{32};
-  StateSet next_states;
+  // Max cost is indexed by resource, and contains the maximum number of resources we need to build
+  // any robot.  This provides an upper limit on the maximum number of robots of each type we need
+  // to be efficient (as we can only build one robot at a time).
+  std::array<UInt, resource_count> max_cost{0, 0, 0, 0};
+  for (UInt robot{0}; robot < resource_count; ++robot) {
+    for (UInt resource{0}; resource < resource_count; ++resource) {
+      max_cost[resource] = std::max(max_cost[resource], costs.costs_[robot][resource]);
+    }
+  }
+
+  // However as many GEODE robots as possible should be built
+  max_cost[GEODE] = std::numeric_limits<UInt>::max();
+
+  constexpr UInt total_time{32};  // Time to run for
+  // Use a set for the states to examine to ensure we remove duplicates.
+  StateSet next_states;  // The states to examine next.
   next_states.insert(State{});
 
   for (UInt t{0}; t < total_time; ++t) {
@@ -89,6 +109,9 @@ auto generate(Costs const& costs) -> UInt
       auto built{0};
       auto robots{0};
       for (UInt robot{0}; robot < resource_count; ++robot) {
+        if (state.robots_available_[robot] >= max_cost[robot]) {
+          continue;
+        }
         if (state.robots_available_[robot] != 0) {
           ++robots;
         }
@@ -144,7 +167,7 @@ auto main() -> int
       return EXIT_FAILURE;
     }
 
-    UInt id{static_cast<UInt>(std::stoul(m.str(1)))};
+    UInt const id{static_cast<UInt>(std::stoul(m.str(1)))};
     Costs costs;
     costs.costs_[ORE][ORE] = static_cast<UInt>(std::stoul(m.str(2)));
     costs.costs_[CLAY][ORE] = static_cast<UInt>(std::stoul(m.str(3)));
