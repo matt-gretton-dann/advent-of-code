@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <execution>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -53,6 +54,11 @@ auto main() -> int
   Point max(0, 0);
   std::regex const re{"(\\d+), (\\d+)"};
 
+  Int const safe_distance{10'000};
+  // At the edge of the grid (0,0) or (max,max) what is the largest possible sum of distances we
+  // could have.
+  Int edge_distance{0};
+
   // Read data
   while (std::getline(std::cin, line)) {
     std::smatch m;
@@ -62,18 +68,17 @@ auto main() -> int
     }
     Point const pt(std::stoll(m.str(1)), std::stoll(m.str(2)));
     point_map.insert({pt, 0});
+    edge_distance += pt.first + pt.second;
     max.first = std::max(max.first, pt.first);
     max.second = std::max(max.second, pt.second);
   }
 
-  // Examine each point within the grid.  We go over the top just to be safe
-  Int const safe_distance{10'000};
   Int region_size{0};
-  for (Int x{max.first - safe_distance - 1}; x <= safe_distance + 1; ++x) {
-    if (x % 1000 == 0) {
-      std::cout << "x: " << x << "\n";
-    }
-    for (Int y{max.second - safe_distance - 1}; y <= safe_distance + 1; ++y) {
+  // Edge distance now becomes how far we have to go beyond the edge of the grid to ensure we count
+  // all bits of the grid.
+  edge_distance = (edge_distance > safe_distance) ? 0 : safe_distance - edge_distance;
+  for (Int x{-edge_distance}; x <= max.first + edge_distance; ++x) {
+    for (Int y{-edge_distance}; y <= max.second + edge_distance; ++y) {
       if (within_distance(point_map.begin(), point_map.end(), Point(x, y), safe_distance)) {
         ++region_size;
       }
