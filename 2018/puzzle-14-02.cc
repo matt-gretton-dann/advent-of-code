@@ -8,6 +8,7 @@
 #include <iostream>
 #include <regex>
 #include <utility>
+#include <cassert>
 
 using Int = std::int64_t;
 using UInt = std::uint64_t;

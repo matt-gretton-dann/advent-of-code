@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 02/12/2022.
 //
 
+#include <cassert>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>

@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 02/12/2022.
 //
 
+#include <cassert>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
@@ -20,7 +21,7 @@ auto main() -> int
     auto left{line.substr(0, line.size() / 2)};
     auto right{line.substr(line.size() / 2)};
     std::sort(left.begin(), left.end());
-        std::sort(right.begin(), right.end());
+    std::sort(right.begin(), right.end());
     std::string result;
     std::set_intersection(left.begin(), left.end(), right.begin(), right.end(),
                           std::back_inserter(result));

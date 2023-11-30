@@ -1,4 +1,5 @@
 #include <array>
+#include <cassert>
 #include <iostream>
 #include <regex>
 #include <string>
@@ -7,7 +8,10 @@ using Int = long;
 
 struct Vector
 {
-  Vector(Int x, Int y, Int z) : x_(x), y_(y), z_(z) {}
+  Vector(Int x, Int y, Int z)
+    : x_(x), y_(y), z_(z)
+  {
+  }
 
   Int x() const noexcept { return x_; }
   Int y() const noexcept { return y_; }
@@ -49,7 +53,7 @@ auto operator==(Vector const& lhs, Vector const& rhs) -> bool
 struct NodeState
 {
   NodeState(Vector const& pos, Vector const& velocity, Vector const& accel)
-      : pos_(pos), velocity_(velocity), accel_(accel)
+    : pos_(pos), velocity_(velocity), accel_(accel)
   {
   }
 

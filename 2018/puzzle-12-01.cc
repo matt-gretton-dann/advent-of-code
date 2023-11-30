@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 01/12/2022.
 //
 
+#include <cassert>
 #include <array>
 #include <cstdlib>
 #include <iomanip>
@@ -65,8 +66,8 @@ auto main() -> int
 
   for (unsigned i{0}; i < transitions.size(); ++i) {
     std::cout << ((i & 16) ? plant : soil) << ((i & 8) ? plant : soil) << ((i & 4) ? plant : soil)
-              << ((i & 2) ? plant : soil) << ((i & 1) ? plant : soil) << " => " << transitions[i]
-              << "\n";
+      << ((i & 2) ? plant : soil) << ((i & 1) ? plant : soil) << " => " << transitions[i]
+      << "\n";
   }
   constexpr UInt num_runs{20};
   for (UInt i{0}; i < num_runs; ++i) {

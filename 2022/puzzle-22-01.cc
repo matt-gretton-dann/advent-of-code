@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 16/12/2022.
 //
 
+#include <cassert>
 #include <array>
 #include <iostream>
 #include <map>
@@ -150,7 +151,7 @@ auto main() -> int
     grid.push_back(line);
     max_row_length = std::max(max_row_length, line.size());
   }
-  for (auto& row : grid) { row.resize(max_row_length, ' ');};
+  for (auto& row : grid) { row.resize(max_row_length, ' '); };
 
   std::string instructions;
   if (!std::getline(std::cin, instructions)) {
@@ -183,7 +184,7 @@ auto main() -> int
     Int const facing{encode_direction(direction)};
 
     std::cout << " Position: " << pos.first << ", " << pos.second << " Facing: " << direction.first
-              << ", " << direction.second << " = " << facing << "\n";
+      << ", " << direction.second << " = " << facing << "\n";
   }
 
   Int const facing{encode_direction(direction)};
@@ -193,7 +194,7 @@ auto main() -> int
     std::cout << row << "\n";
   }
   std::cout << "Position: " << pos.first << ", " << pos.second << " Facing: " << direction.first
-            << ", " << direction.second << " = " << facing << "\n";
+    << ", " << direction.second << " = " << facing << "\n";
   std::cout << "Encoding: " << pos.second * 1000 + pos.first * 4 + facing;
 
   return EXIT_SUCCESS;

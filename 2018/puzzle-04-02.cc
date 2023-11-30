@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 01/12/2022.
 //
 
+#include <cassert>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -23,19 +24,19 @@ struct Event
     UInt pos{1};
     std::size_t l{0};
     std::stoull(s.substr(pos));
-    timestamp_ = std::stoull(s.substr(pos), &l);  // year
+    timestamp_ = std::stoull(s.substr(pos), &l); // year
     pos += l + 1;
     timestamp_ *= 12;
-    timestamp_ += std::stoull(s.substr(pos), &l) - 1;  // month
+    timestamp_ += std::stoull(s.substr(pos), &l) - 1; // month
     pos += l + 1;
-    timestamp_ *= 31;                                  // Just need order not actual values.
-    timestamp_ += std::stoull(s.substr(pos), &l) - 1;  // day
+    timestamp_ *= 31;                                 // Just need order not actual values.
+    timestamp_ += std::stoull(s.substr(pos), &l) - 1; // day
     pos += l + 1;
     timestamp_ *= 24;
-    timestamp_ += std::stoull(s.substr(pos), &l);  // hour
+    timestamp_ += std::stoull(s.substr(pos), &l); // hour
     pos += l + 1;
     timestamp_ *= 60;
-    timestamp_ += std::stoull(s.substr(pos), &l);  // minute
+    timestamp_ += std::stoull(s.substr(pos), &l); // minute
     pos += l + 2;
     if (s.substr(pos) == "falls asleep"s) {
       wake_up_ = false;
@@ -79,11 +80,11 @@ private:
 auto print_timestamp(UInt timestamp)
 {
   std::cout << "[" << timestamp << ": " << timestamp / static_cast<UInt>(24 * 60 * 31 * 12) << "-"
-            << std::setw(2) << std::setfill('0')
-            << 1 + timestamp / static_cast<UInt>(24 * 60 * 31) % 12 << "-" << std::setw(2)
-            << std::setfill('0') << 1 + (timestamp / static_cast<UInt>(24 * 60)) % 31 << " "
-            << std::setw(2) << std::setfill('0') << (timestamp / 60) % 24 << ":" << std::setw(2)
-            << std::setfill('0') << timestamp % 60 << "]";
+    << std::setw(2) << std::setfill('0')
+    << 1 + timestamp / static_cast<UInt>(24 * 60 * 31) % 12 << "-" << std::setw(2)
+    << std::setfill('0') << 1 + (timestamp / static_cast<UInt>(24 * 60)) % 31 << " "
+    << std::setw(2) << std::setfill('0') << (timestamp / 60) % 24 << ":" << std::setw(2)
+    << std::setfill('0') << timestamp % 60 << "]";
 }
 
 auto how_sleepy(std::vector<UInt> const& guard) -> UInt
@@ -120,8 +121,8 @@ auto main() -> int
         }
         print_timestamp(e.timestamp());
         std::cout << ": Guard " << current_it->first << " wakes up after "
-                  << e.timestamp() - asleep_from << " minutes sleep.  Has slept a total of "
-                  << how_sleepy(current_it->second) << " minutes.\n";
+          << e.timestamp() - asleep_from << " minutes sleep.  Has slept a total of "
+          << how_sleepy(current_it->second) << " minutes.\n";
         asleep_from = 0;
       }
     }
@@ -144,8 +145,8 @@ auto main() -> int
     }
 
     std::cout << "Guard " << guard_sleep.first << " slept most for " << *sleepiest_minute
-              << " minutes at " << sleepiest_minute - guard_sleep.second.begin()
-              << " score: " << score << "\n";
+      << " minutes at " << sleepiest_minute - guard_sleep.second.begin()
+      << " score: " << score << "\n";
   }
 
   std::cout << "Result: " << max_score << "\n";

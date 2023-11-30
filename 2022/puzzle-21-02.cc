@@ -8,6 +8,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <utility>
+#include <cassert>
 
 using Int = std::int64_t;
 using UInt = std::uint64_t;
@@ -19,10 +20,13 @@ struct Monkey
 {
   Monkey() = default;
 
-  explicit Monkey(Int value) : value_(value), value_known_(true) {}
+  explicit Monkey(Int value)
+    : value_(value), value_known_(true)
+  {
+  }
 
   Monkey(std::string lhs, char op, std::string rhs)
-      : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(op)
+    : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(op)
   {
   }
 
@@ -68,13 +72,13 @@ auto calculate(Int lhs, char op, Int rhs)
 auto find_lhs(Int result, char op, Int rhs)
 {
   switch (op) {
-  case '+':  // result = lhs + rhs -> lhs = result - rhs;
+  case '+': // result = lhs + rhs -> lhs = result - rhs;
     return result - rhs;
-  case '-':  // result = lhs - rhs -> lhs = result + rhs;
+  case '-': // result = lhs - rhs -> lhs = result + rhs;
     return result + rhs;
-  case '*':  // result = lhs * rhs -> lhs = result / rhs
+  case '*': // result = lhs * rhs -> lhs = result / rhs
     return result / rhs;
-  case '/':  // result = lhs / rhs -> lhs = result * rhs;
+  case '/': // result = lhs / rhs -> lhs = result * rhs;
     return result * rhs;
   case '=':
     return rhs;
@@ -86,13 +90,13 @@ auto find_lhs(Int result, char op, Int rhs)
 auto find_rhs(Int result, Int lhs, char op)
 {
   switch (op) {
-  case '+':  // result = lhs + rhs -> rhs = result - lhs;
+  case '+': // result = lhs + rhs -> rhs = result - lhs;
     return result - lhs;
-  case '-':  // result = lhs - rhs -> rhs = lhs - result;
+  case '-': // result = lhs - rhs -> rhs = lhs - result;
     return lhs - result;
-  case '*':  // result = lhs * rhs -> rhs = result / lhs
+  case '*': // result = lhs * rhs -> rhs = result / lhs
     return result / lhs;
-  case '/':  // result = lhs / rhs -> rhs = lhs / result;
+  case '/': // result = lhs / rhs -> rhs = lhs / result;
     return lhs / result;
   case '=':
     return lhs;

@@ -8,6 +8,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <utility>
+#include <cassert>
 
 using Int = std::int64_t;
 using UInt = std::uint64_t;
@@ -19,10 +20,13 @@ struct Monkey
 {
   Monkey() = default;
 
-  explicit Monkey(Int value) : value_(value), value_known_(true) {}
+  explicit Monkey(Int value)
+    : value_(value), value_known_(true)
+  {
+  }
 
   Monkey(std::string lhs, char op, std::string rhs)
-      : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(op)
+    : lhs_(std::move(lhs)), rhs_(std::move(rhs)), op_(op)
   {
   }
 

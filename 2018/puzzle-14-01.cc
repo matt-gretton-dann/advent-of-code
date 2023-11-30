@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 01/12/2022.
 //
 
+#include <cassert>
 #include <array>
 #include <cstdlib>
 #include <iomanip>

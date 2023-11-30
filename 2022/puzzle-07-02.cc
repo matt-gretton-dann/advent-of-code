@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 07/12/2022.
 //
 
+#include <cassert>
 #include <iostream>
 #include <list>
 #include <map>

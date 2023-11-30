@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "position.h"
+#include <cassert>
 
 using Int = std::int64_t;
 

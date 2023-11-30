@@ -1,3 +1,4 @@
+#include <cassert>
 #include <array>
 #include <iomanip>
 #include <iostream>
@@ -124,6 +125,7 @@ struct State
       get(new_scorex, scorey, new_posx, posy) += states;
     }
   }
+
   void move_player2(unsigned scorex, unsigned scorey, unsigned posx, unsigned posy, unsigned amount,
                     UInt states)
   {
@@ -148,6 +150,7 @@ private:
     return data_[scorey * target_score * loop_size * loop_size + scorex * loop_size * loop_size +
                  (posy - 1) * loop_size + (posx - 1)];
   }
+
   auto get(unsigned scorex, unsigned scorey, unsigned posx, unsigned posy) noexcept -> UInt&
   {
     return data_[scorey * target_score * loop_size * loop_size + scorex * loop_size * loop_size +

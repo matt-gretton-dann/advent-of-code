@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 16/12/2022.
 //
 
+#include <cassert>
 #include <array>
 #include <iostream>
 #include <list>
@@ -45,8 +46,8 @@ auto next_state(Grid const& grid, Dirs const& dirs) -> Grid
       ++num_pts;
 
       if (std::all_of(all_dirs.begin(), all_dirs.end(), [&x, &y, &grid](auto const& dir) {
-            return grid.at(dir.second + y).at(dir.first + x) == '.';
-          })) {
+        return grid.at(dir.second + y).at(dir.first + x) == '.';
+      })) {
         result.at(y).at(x) = '#';
         continue;
       }
@@ -55,8 +56,8 @@ auto next_state(Grid const& grid, Dirs const& dirs) -> Grid
       Point direction{0, 0};
       for (auto const& ds : dirs) {
         if (std::all_of(ds.begin(), ds.end(), [&x, &y, &grid](auto const& d) {
-              return grid.at(y + d.second).at(x + d.first) == '.';
-            })) {
+          return grid.at(y + d.second).at(x + d.first) == '.';
+        })) {
           moved = true;
           direction = ds[1];
         }
@@ -160,6 +161,7 @@ auto calc_score(Grid const& grid) -> UInt
 }
 
 using namespace std::string_literals;
+
 auto main() -> int
 {
   std::string line;
@@ -206,6 +208,6 @@ auto main() -> int
 
   UInt const score{calc_score(grid)};
   std::cout << "Score: " << score << "\n";
-  std::cout << "Number of turns: " << num_rounds<< "\n";
+  std::cout << "Number of turns: " << num_rounds << "\n";
   return EXIT_SUCCESS;
 }

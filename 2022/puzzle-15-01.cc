@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 09/12/2022.
 //
 
+#include <cassert>
 #include <array>
 #include <iostream>
 #include <list>
@@ -54,14 +55,14 @@ auto main() -> int
     // Distance(ish) to row we're interested in:
     Int const row_dist{std::abs(sy - row)};
     std::cout << "Sensor (" << sx << ", " << sy << "):\n"
-              << "  Nearest beacon is: " << bx << ", " << by << "\n"
-              << "  Distance: " << dist << "\n"
-              << "  y-Distance to row " << row << ": " << row_dist << "\n";
+      << "  Nearest beacon is: " << bx << ", " << by << "\n"
+      << "  Distance: " << dist << "\n"
+      << "  y-Distance to row " << row << ": " << row_dist << "\n";
     // If that distance is non-negative then we have places the beacon can't be
     if (row_dist <= dist) {
       Int const x_dist{dist - row_dist};
       std::cout << "  x distance left: " << x_dist << "\n"
-                << "  Range: " << sx - x_dist << " - " << sx + x_dist + 1 << "\n";
+        << "  Range: " << sx - x_dist << " - " << sx + x_dist + 1 << "\n";
       Range const missing{sx - x_dist, sx + x_dist + 1};
       ranges.insert(missing);
     }
@@ -83,7 +84,7 @@ auto main() -> int
     }
     auto b{std::max(r.first, last_pos)};
     std::cout << "  Taking range start as: " << b << '\n'
-              << "  Adding to count: " << r.second - b << "\n";
+      << "  Adding to count: " << r.second - b << "\n";
     count += (r.second - b);
     last_pos = r.second;
   }

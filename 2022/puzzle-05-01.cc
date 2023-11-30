@@ -6,6 +6,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <cassert>
 
 using UInt = std::uint64_t;
 

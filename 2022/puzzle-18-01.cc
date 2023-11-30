@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 16/12/2022.
 //
 
+#include <cassert>
 #include <array>
 #include <iostream>
 #include <list>
@@ -21,7 +22,8 @@ using namespace std::string_literals;
 
 struct Grid3
 {
-  explicit Grid3(std::size_t size) : size_(size) { map_.resize(size * size * size, false); }
+  explicit Grid3(std::size_t size)
+    : size_(size) { map_.resize(size * size * size, false); }
 
   auto point(Point3 const& p) const noexcept -> bool
   {

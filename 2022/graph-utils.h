@@ -6,6 +6,7 @@
 #define ADVENT_OF_CODE_GRAPH_UTILS_H
 
 #include <algorithm>
+#include <cassert>
 #include <limits>
 #include <map>
 #include <numeric>
@@ -133,14 +134,14 @@ auto dijkstra(Node const& initial, Cost initial_cost, TransitionManager transiti
     current_cost = cost_it->first;
     assert(iter < nodes.size());
     assert(std::accumulate(costs.begin(), costs.end(), std::size_t{0}, [](auto a, auto c) {
-             return a + c.second.size();
-           }) == nodes.size() - iter);
+      return a + c.second.size();
+      }) == nodes.size() - iter);
     for (auto& nodep : cost_it->second) {
       if (iter++ % 100'000 == 0) {
         std::cout << "Iteration: " << iter << " cost " << current_cost
-                  << " total number of nodes: " << nodes.size()
-                  << ", number of costs left to visit: " << costs.size()
-                  << ", number of nodes left: " << (nodes.size() - iter) << '\n';
+          << " total number of nodes: " << nodes.size()
+          << ", number of costs left to visit: " << costs.size()
+          << ", number of nodes left: " << (nodes.size() - iter) << '\n';
       }
       if (transition_manager.is_finished(*nodep)) {
         auto result{std::make_pair(*nodep, current_cost)};

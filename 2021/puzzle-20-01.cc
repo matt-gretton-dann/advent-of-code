@@ -1,10 +1,12 @@
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <vector>
 
 struct State
 {
-  explicit State(std::string const& rules) : rules_(rules)
+  explicit State(std::string const& rules)
+    : rules_(rules)
   {
     assert(rules.size() == 512);
     assert(rules[0] == '.' || rules[511] == '.');

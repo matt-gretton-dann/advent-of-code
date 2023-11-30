@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 09/12/2022.
 //
 
+#include <cassert>
 #include <array>
 #include <iostream>
 #include <list>

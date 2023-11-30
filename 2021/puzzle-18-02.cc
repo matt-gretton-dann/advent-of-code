@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cassert>
 
 using UInt = unsigned long;
 
@@ -9,6 +10,7 @@ struct Item
   UInt value_;
   unsigned depth_;
 };
+
 using Items = std::vector<Item>;
 
 auto print1(Items::const_iterator begin, Items::const_iterator end, unsigned current_depth)

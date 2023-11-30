@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 09/12/2022.
 //
 
+#include <cassert>
 #include <array>
 #include <iostream>
 #include <list>
@@ -18,17 +19,20 @@ enum class Op { undef, add, mult, dbl, square };
 struct Monkey
 {
   auto add_item(UInt score) { items_.push_back(score); }
+
   auto op(Op op)
   {
     assert(op == Op::dbl || op == Op::square);
     op_ = op;
   }
+
   auto op(Op op, UInt amt)
   {
     assert(op == Op::add || op == Op::mult);
     op_ = op;
     amt_ = amt;
   }
+
   auto test(UInt test) { test_ = test; }
   auto true_monkey(UInt monkey) { true_monkey_ = monkey; }
   auto false_monkey(UInt monkey) { false_monkey_ = monkey; }

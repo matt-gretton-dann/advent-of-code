@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <cassert>
 
 using Int = std::int64_t;
 

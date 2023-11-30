@@ -2,6 +2,7 @@
 // Created by Matthew Gretton-Dann on 16/12/2022.
 //
 
+#include <cassert>
 #include <array>
 #include <iostream>
 #include <map>
@@ -127,7 +128,7 @@ auto wrap_round(Point const& pos, Point const& direction) -> std::pair<Point, Po
     return {Point{square_size * 2 + x, 0}, down};
   }
   assert(((sx == 1 || sx == 2) && sy == 0) || (sx == 1 && sy == 1) ||
-         ((sx == 0 || sx == 1) && sy == 2) || (sx == 0 && sy == 3));
+    ((sx == 0 || sx == 1) && sy == 2) || (sx == 0 && sy == 3));
   return {pos, direction};
 }
 
@@ -180,8 +181,8 @@ auto move_pos(Grid& grid, Point pos, Point direction, Int amt) -> std::pair<Poin
     }
     if (direction != next_direction) {
       std::cout << " Change of direction: " << pos.first << ", " << pos.second << " -> "
-                << next_pos.first << ", " << next_pos.second << ".  Direction "
-                << direction_char(direction) << " -> " << direction_char(next_direction) << "\n";
+        << next_pos.first << ", " << next_pos.second << ".  Direction "
+        << direction_char(direction) << " -> " << direction_char(next_direction) << "\n";
     }
     pos = next_pos;
     direction = next_direction;
@@ -259,7 +260,7 @@ auto main() -> int
     Int const facing{encode_direction(direction)};
 
     std::cout << " Position: " << pos.first << ", " << pos.second << " Facing: " << direction.first
-              << ", " << direction.second << " = " << facing << "\n";
+      << ", " << direction.second << " = " << facing << "\n";
   }
 
   Int const facing{encode_direction(direction)};
@@ -269,7 +270,7 @@ auto main() -> int
     std::cout << row << "\n";
   }
   std::cout << "Position: " << pos.first << ", " << pos.second << " Facing: " << direction.first
-            << ", " << direction.second << " = " << facing << "\n";
+    << ", " << direction.second << " = " << facing << "\n";
   std::cout << "Encoding: " << pos.second * 1000 + pos.first * 4 + facing;
 
   return EXIT_SUCCESS;
