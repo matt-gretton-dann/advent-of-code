@@ -9,10 +9,7 @@
 #include <vector>
 
 using UInt = std::uint64_t;
-using StringVec = std::vector<std::string>;
 using UIntVec = std::vector<UInt>;
-using Pos = std::pair<UInt, UInt>;
-using PosVec = std::vector<Pos>;
 
 auto split(std::string_view line) -> std::pair<std::string_view, UIntVec>
 {
@@ -33,21 +30,23 @@ auto split(std::string_view line) -> std::pair<std::string_view, UIntVec>
 
 std::unordered_map<std::string, UInt> counts;
 
-auto valid_sequences(std::string_view pattern, UIntVec::const_iterator begin,
-                     UIntVec::const_iterator end) -> UInt;
+auto valid_sequences(std::string_view const pattern, UIntVec::const_iterator begin,
+                     UIntVec::const_iterator const end) -> UInt;
 
-auto generate_pattern(std::string pattern, UIntVec::const_iterator begin,
-                      UIntVec::const_iterator end) -> UInt
+[[nodiscard]] auto generate_pattern(std::string_view const pattern, UIntVec::const_iterator begin,
+                                    UIntVec::const_iterator const end) -> UInt
 {
+  std::size_t pos{0};
+  auto const len{pattern.size()};
   while (begin != end) {
-    if (pattern.empty()) {
+    if (pos == len) {
       // We still have ###s to add but nowhere to put them - this isn't a match.
       return 0;
     }
 
-    if (pattern[0] == '?') {
+    if (pattern[pos] == '?') {
       // We don't know what the first character is so let's try both options recursively.
-      auto new_pattern{pattern};
+      std::string new_pattern{pattern.substr(pos)};
       new_pattern[0] = '.';
       auto count = valid_sequences(new_pattern, begin, end);
       new_pattern[0] = '#';
@@ -55,52 +54,50 @@ auto generate_pattern(std::string pattern, UIntVec::const_iterator begin,
       return count;
     }
 
-    if (pattern[0] == '.') {
+    if (pattern[pos] == '.') {
       // If the pattern begins with a '.' then we just skip over it.
-      pattern = pattern.substr(1);
+      ++pos;
       continue;
     }
 
     /* We must have a '#' now. */
-    assert(pattern[0] == '#');
+    assert(pattern[pos] == '#');
 
-    if (pattern.size() < *begin) {
+    if (len - pos < *begin) {
       // Not enough space.
       return 0;
     }
 
     for (std::size_t count = 0; count < *begin; ++count) {
       // Check for dots.
-      if (pattern[count] == '.') { return 0; }
+      if (pattern[pos++] == '.') { return 0; }
     }
 
-    // Move along the pattern.
-    pattern = pattern.substr(*begin++);
-
-    if (begin != end) {
-      if (pattern.empty()) { return 0; }
-      if (pattern[0] == '#') { return 0; }
-      pattern = pattern.substr(1);
+    // Check for at least one '.' after the non-final ### sequence.
+    if (++begin != end) {
+      if (pos == len) { return 0; }
+      if (pattern[pos] == '#') { return 0; }
+      ++pos;
     }
   }
 
-  return pattern.find('#') == std::string_view::npos;
+  return pattern.find('#', pos) == std::string_view::npos;
 }
 
-auto valid_sequences(std::string_view pattern, UIntVec::const_iterator begin,
-                     UIntVec::const_iterator end) -> UInt
+[[nodiscard]] auto valid_sequences(std::string_view const pattern, UIntVec::const_iterator begin,
+                                   UIntVec::const_iterator const end) -> UInt
 {
-  std::string hash = std::string(pattern);
-  for (auto it{begin}; it != end; ++it) {
-    hash += ',';
-    hash += std::to_string(*it);
-  }
+  // Create a string to use as a hash - because I'm too lazy to do it properly.
+  // We need to store the pattern and how many sequences of #s we need to add remaining.
+  // This requires us to clear counts between each top-level call to valid_sequences().
+  std::string hash{pattern};
+  hash += static_cast<char>(end - begin) + 'A';
 
   auto it = counts.find(hash);
   if (it == counts.end()) {
     bool success;
-    std::tie(it, success) = counts.insert(
-      {hash, generate_pattern(std::string(pattern), begin, end)});
+    std::tie(it, success) = counts.insert({hash, generate_pattern(pattern, begin, end)});
+    assert(success);
   }
 
   return it->second;
@@ -121,14 +118,14 @@ auto main() -> int try {
       unfolded_nums.insert(unfolded_nums.begin(), nums.begin(), nums.end());
     }
 
+    counts.clear();
     line_count += valid_sequences(unfolded_pattern, unfolded_nums.begin(), unfolded_nums.end());
-    std::cout << line << ": " << line_count << '\n';
     count += line_count;
   }
 
   std::cout << "Valid sequences: " << count << '\n';
 
-  return EXIT_SUCCESS;;
+  return EXIT_SUCCESS;
 }
 catch (...) {
   std::cerr << "Uncaught exception.\n";
