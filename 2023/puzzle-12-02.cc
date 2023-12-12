@@ -62,17 +62,16 @@ auto split(std::string_view line) -> std::pair<std::string_view, UIntVec>
 void generate_pattern(std::string start, UIntVec::const_iterator it, UIntVec::const_iterator end,
                       std::string_view pattern, UInt hash_count, UInt& count)
 {
-  for (std::size_t p{0}; p + start.size() < pattern.size() && p < *it; ++p) {
-    if (pattern[start.size() + p] == '.') { return; }
-  }
-  start += std::string(*it++, '#');
+  auto pos = start.size();
+  auto num_hashs = *it++;
+  start += std::string(num_hashs, '#');
 
   if (it == end) {
     if (start.size() <= pattern.size()) {
       start.resize(pattern.size(), '.');
-      if (validate_subpattern(pattern, start, hash_count, end - it - 1)) {
+      if (validate_subpattern(pattern.substr(pos), start.substr(pos), num_hashs, 0)) {
         ++count;
-        if (count % 100'000 == 0) {
+        if (count % 1'000'000 == 0) {
           std::cout << start << '\n';
         }
       }
@@ -81,8 +80,8 @@ void generate_pattern(std::string start, UIntVec::const_iterator it, UIntVec::co
   }
 
   start += '.';
-  while (validate_subpattern(pattern, start, hash_count, end - it - 1)) {
-    generate_pattern(start, it, end, pattern, hash_count, count);
+  while (validate_subpattern(pattern.substr(pos), start.substr(pos), hash_count, end - it - 1)) {
+    generate_pattern(start, it, end, pattern, hash_count - num_hashs, count);
     start += '.';
   }
 }
@@ -94,7 +93,6 @@ auto valid_sequences(std::string_view pattern, UIntVec const& nums) -> UInt
   for (auto num : nums) { hash_count += num; }
   std::string start;
   while (validate_subpattern(pattern, start, hash_count, nums.size() - 1)) {
-    std::cout << start << '\n';
     generate_pattern(start, nums.begin(), nums.end(), pattern, hash_count, count);
     start += '.';
   }
