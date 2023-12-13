@@ -11,7 +11,7 @@ struct Grid
   void clear() { rows_.clear(); }
   void push_back(std::string const& row) { rows_.push_back(row); }
 
-  [[nodiscard]] auto reflection_point() -> UInt
+  [[nodiscard]] auto reflection_point() const -> UInt
   {
     for (std::size_t row{0}; row < rows_.size() - 1; ++row) {
       auto top{row};
