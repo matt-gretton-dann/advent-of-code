@@ -131,21 +131,15 @@ private:
         case '.':
           break;
         case '\\':
-          if (beam.dir_ == north) { beam.dir_ = west; }
-          else if (beam.dir_ == east) { beam.dir_ = south; }
-          else if (beam.dir_ == south) { beam.dir_ = east; }
-          else if (beam.dir_ == west) { beam.dir_ = north; }
-          else { std::abort(); }
+          std::swap(beam.dir_.first, beam.dir_.second);
           break;
         case '/':
-          if (beam.dir_ == north) { beam.dir_ = east; }
-          else if (beam.dir_ == east) { beam.dir_ = north; }
-          else if (beam.dir_ == south) { beam.dir_ = west; }
-          else if (beam.dir_ == west) { beam.dir_ = south; }
-          else { std::abort(); }
+          std::swap(beam.dir_.first, beam.dir_.second);
+          beam.dir_.first = -beam.dir_.first;
+          beam.dir_.second = -beam.dir_.second;
           break;
         case '|':
-          if (beam.dir_ == east || beam.dir_ == west) {
+          if (beam.dir_.second == 0) {
             Beam beam2{beam};
             beam2.dir_ = north;
             beam2.loc_ = beam2.loc_ + beam2.dir_;
@@ -154,7 +148,7 @@ private:
           }
           break;
         case '-':
-          if (beam.dir_ == north || beam.dir_ == south) {
+          if (beam.dir_.first == 0) {
             Beam beam2{beam};
             beam2.dir_ = east;
             beam2.loc_ = beam2.loc_ + beam2.dir_;
