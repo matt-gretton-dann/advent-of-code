@@ -126,52 +126,47 @@ private:
     while (!beams.empty()) {
       auto beam{beams.front()};
       beams.pop_front();
-      if (!loc_valid(beam.loc_)) { continue; }
-      // Insert into hash of energised locations.  If that fails we've done this before and don't
-      // need to do it again.
-      if (auto [it, success] = energised_.insert(beam); !success) { continue; }
-
-      switch (grid_[beam.loc_.second][beam.loc_.first]) {
-      case '.':
-        break;
-      case '\\':
-        if (beam.dir_ == north) { beam.dir_ = west; }
-        else if (beam.dir_ == east) { beam.dir_ = south; }
-        else if (beam.dir_ == south) { beam.dir_ = east; }
-        else if (beam.dir_ == west) { beam.dir_ = north; }
-        else { std::abort(); }
-        break;
-      case '/':
-        if (beam.dir_ == north) { beam.dir_ = east; }
-        else if (beam.dir_ == east) { beam.dir_ = north; }
-        else if (beam.dir_ == south) { beam.dir_ = west; }
-        else if (beam.dir_ == west) { beam.dir_ = south; }
-        else { std::abort(); }
-        break;
-      case '|':
-        if (beam.dir_ == east || beam.dir_ == west) {
-          Beam beam2{beam};
-          beam2.dir_ = north;
-          beam2.loc_ = beam2.loc_ + beam2.dir_;
-          beams.push_back(beam2);
-          beam.dir_ = south;
+      while (loc_valid(beam.loc_) && energised_.insert(beam).second) {
+        switch (grid_[beam.loc_.second][beam.loc_.first]) {
+        case '.':
+          break;
+        case '\\':
+          if (beam.dir_ == north) { beam.dir_ = west; }
+          else if (beam.dir_ == east) { beam.dir_ = south; }
+          else if (beam.dir_ == south) { beam.dir_ = east; }
+          else if (beam.dir_ == west) { beam.dir_ = north; }
+          else { std::abort(); }
+          break;
+        case '/':
+          if (beam.dir_ == north) { beam.dir_ = east; }
+          else if (beam.dir_ == east) { beam.dir_ = north; }
+          else if (beam.dir_ == south) { beam.dir_ = west; }
+          else if (beam.dir_ == west) { beam.dir_ = south; }
+          else { std::abort(); }
+          break;
+        case '|':
+          if (beam.dir_ == east || beam.dir_ == west) {
+            Beam beam2{beam};
+            beam2.dir_ = north;
+            beam2.loc_ = beam2.loc_ + beam2.dir_;
+            beams.push_back(beam2);
+            beam.dir_ = south;
+          }
+          break;
+        case '-':
+          if (beam.dir_ == north || beam.dir_ == south) {
+            Beam beam2{beam};
+            beam2.dir_ = east;
+            beam2.loc_ = beam2.loc_ + beam2.dir_;
+            beams.push_back(beam2);
+            beam.dir_ = west;
+          }
+          break;
+        default:
+          std::abort();
         }
-        break;
-      case '-':
-        if (beam.dir_ == north || beam.dir_ == south) {
-          Beam beam2{beam};
-          beam2.dir_ = east;
-          beam2.loc_ = beam2.loc_ + beam2.dir_;
-          beams.push_back(beam2);
-          beam.dir_ = west;
-        }
-        break;
-      default:
-        std::abort();
+        beam.loc_ = beam.loc_ + beam.dir_;
       }
-
-      beam.loc_ = beam.loc_ + beam.dir_;
-      beams.push_back(beam);
     }
   }
 
