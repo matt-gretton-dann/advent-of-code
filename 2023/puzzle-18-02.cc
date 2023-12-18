@@ -13,6 +13,10 @@ using UInt = std::uint64_t;
 
 enum class State { on, off };
 
+/* A location: Really just an ordered pair of x, y co-ordinates.
+ * We supply an ordering which means that when we iterate over the map we start in the top left
+ * and go along a row at a time.
+ */
 struct Location
 {
   Location(Int const x, Int const y) noexcept
@@ -39,6 +43,9 @@ private:
   Int y_;
 };
 
+/* The data we store at each location - effectively whether a horizontal line to the right
+ * and/or a vertical line down starts or ends here.
+ */
 struct Data
 {
   void horiz(State const horiz) noexcept { horiz_ = horiz; }
@@ -49,15 +56,6 @@ struct Data
 private:
   State horiz_{State::off};
   State vert_{State::off};
-};
-
-template<>
-struct std::hash<Location>
-{
-  [[nodiscard]] auto operator()(Location const& loc) const noexcept -> std::size_t
-  {
-    return std::hash<Int>{}((loc.x() << 16) + loc.y());
-  }
 };
 
 auto operator<<(std::ostream& os, Location const& loc) -> std::ostream&
@@ -78,6 +76,11 @@ auto operator<<(std::ostream& os, Data const& data) -> std::ostream&
 
 struct Grid
 {
+  /* Add an instruction.
+   *
+   * We store instructions in a map of each corner giving the location and whether a line
+   * extends right and/or down from this corner.
+   */
   void add_instruction(std::string const& line)
   {
     char dir;
@@ -130,23 +133,42 @@ struct Grid
     }
   }
 
+  /* Count the number of interior cells.
+   *
+   * The fundamental algorithm used is to scan each row and everytime we encounter a wall that
+   * has a connection down we toggle whether we count ourselves as inside or not.
+   * We then count all cells that are inside and/or a wall.
+   *
+   * This is complicated by the fact that the grid is so large (O(10^14) is the result).
+   *
+   * So we have stored only the corners.  We iterate over each line and generate the vertical edges
+   * as we see them storing them in vertical_set.
+   */
   [[nodiscard]] auto count_interior() const noexcept -> UInt
   {
     assert(current_loc_.x() == 0);
     assert(current_loc_.y() == 0);
 
     std::set<Int> vertical_set;
-    Int y{corners_.begin()->first.y()};
-    Int x{min_x_};
+    Int y{corners_.begin()->first.y()}; // Start on the first row
+    Int x{min_x_};                      // At the far left
     bool inside{false};
     bool horiz_on{false};
     UInt count{0};
-    constexpr bool debug{true};
+    constexpr bool debug{true}; // Display debug info as we go along?
 
     for (auto const& [loc, data] : corners_) {
+      /* Handle each corner.  Because of the way we have ordered the map this presents them
+       * row by row, left to right, top-to-bottom. */
+
       if (y != loc.y()) {
-        for (auto it{vertical_set.upper_bound(x)}; it != vertical_set.end(); ++it) {
-          assert(!horiz_on);
+        /* New row.  Complete any left over entries from the previous row. */
+        assert(!horiz_on); // Should not be running a horizontal edge.
+
+        /* Find the remaining vertical edges on the row and handle them.  We use x - 1 in the
+         * bounds check as we haven't checked to see if x contains a vertical edge yet.
+         */
+        for (auto it{vertical_set.upper_bound(x - 1)}; it != vertical_set.end(); ++it) {
           if (inside) {
             count += *it - x;
             if (debug) {
@@ -161,16 +183,18 @@ struct Grid
           }
         }
 
-        // Reset for a new line.
-        assert(!inside);
-        assert(!horiz_on);
+        assert(!inside); // End of a row should be outside.
 
-        auto const repeat_count{loc.y() - y - 1};
+        /* Now do the next row.  But there may be a set of rows with no entries - so we have to
+         * just handle the repeating rows specially first of all.
+         */
+        ++y;
+        auto const repeat_count{loc.y() - y};
         UInt row_count{0};
         inside = false;
         Int row_x{*vertical_set.begin()};
         if (debug) {
-          std::cout << "R0: Repeating rows [" << y + 1 << ", " << loc.y() << ")\n";
+          std::cout << "R0: Repeating rows [" << y << ", " << loc.y() << ")\n";
         }
         for (auto const vert_entry : vertical_set) {
           if (inside) {
@@ -190,16 +214,21 @@ struct Grid
         if (debug) {
           std::cout << count << ": repeated rows " << row_count << " * " << repeat_count << '\n';
         }
-        assert(!inside);
 
-        y = loc.y();
-        x = min_x_;
+        assert(!inside); // Shouldn't be inside at the end of a row.
+
+        y = loc.y(); // Now set y to the next interesting row
+        x = min_x_;  // x becomes the minimum value.
         inside = false;
         horiz_on = false;
       }
 
-      for (auto it{vertical_set.upper_bound(x - 1)};
-           it != vertical_set.end() && *it < loc.x(); ++it) {
+      /* Find the remaining vertical edges on the row and handle them.  We use x - 1 in the
+       * bounds check as we haven't checked to see if x contains a vertical edge yet.
+       */
+      for (auto it{vertical_set.upper_bound(x - 1)}; it != vertical_set.end() && *it < loc.x(); ++
+           it) {
+        // We shouldn't be in a horizontal row and have vertical edges.
         assert(!horiz_on);
         if (inside) {
           count += *it - x;
@@ -214,24 +243,25 @@ struct Grid
         inside = !inside;
         x = *it + 1;
       }
+
       if (inside || horiz_on) {
+        /* We're inside or doing a horizontal wall count this run.  Note we have to be careful
+         * as the complete cross product of inside and horiz_on states is possible, and we don't
+         * want to double count.
+         */
         count += loc.x() - x;
         if (debug) {
-          if (horiz_on) {
-            std::cout << count << ": horizontal wall [" << x << ", " << loc.x() << ")\n";
-          }
-          else {
-            std::cout << count << ": inside new [" << x << ", " << loc.x() << ")\n";
-          }
+          std::cout << count << ": " << (horiz_on ? "horizontal wall" : "inside new") << " [" << x
+            << ", " << loc.x() << ")\n";
         }
       }
       ++count;
       if (debug) {
-        std::cout << count << ": wall new [" << loc.x() << "] = " << loc << " - " <<
-          data << "\n";
+        std::cout << count << ": wall new [" << loc.x() << "] = " << loc << " - " << data << "\n";
       }
       x = loc.x() + 1;
 
+      /* Update the set of vertical edges. */
       horiz_on = data.horiz() == State::on;
       if (data.vert() == State::on) {
         inside = !inside;
@@ -244,6 +274,9 @@ struct Grid
         assert(success != 0);
       }
     }
+
+    assert(!inside);
+    assert(!horiz_on);
 
     return count;
   }
