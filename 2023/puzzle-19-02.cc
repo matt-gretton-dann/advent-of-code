@@ -12,6 +12,8 @@
 using Int = std::int64_t;
 using UInt = std::uint64_t;
 
+constexpr bool debug{true};
+
 enum Op { greater, lessthan };
 
 using Ratings = std::unordered_map<char, UInt>;
@@ -45,7 +47,9 @@ struct Action
       auto itnew{rnew.find(c_)};
       itnew->second.first = std::max(itnew->second.first, limit_ + 1);
       if (itnew->second.first < itnew->second.second) {
-        std::cout << "    " << next_ << ", " << rnew << '\n';
+        if (debug) {
+          std::cout << "    " << next_ << ", " << rnew << '\n';
+        }
         work_list.emplace_back(next_, rnew);
       }
 
@@ -58,7 +62,9 @@ struct Action
     auto itnew{rnew.find(c_)};
     itnew->second.second = std::min(itnew->second.second, limit_);
     if (itnew->second.first < itnew->second.second) {
-      std::cout << "    " << next_ << ", " << rnew << '\n';
+      if (debug) {
+        std::cout << "    " << next_ << ", " << rnew << '\n';
+      }
       work_list.emplace_back(next_, rnew);
     }
 
@@ -85,7 +91,9 @@ struct Workflow
       action.split(work_list, r);
     }
 
-    std::cout << "    " << default_ << ", " << r << '\n';
+    if (debug) {
+      std::cout << "    " << default_ << ", " << r << '\n';
+    }
     work_list.emplace_back(default_, r);
   }
 
@@ -155,19 +163,25 @@ struct Workflows
       auto [rule, range] = work_list.front();
       work_list.pop_front();
 
-      std::cout << "  " << rule << ": " << range << '\n';
+      if (debug) {
+        std::cout << "  " << rule << ": " << range;
+      }
 
       bool work_to_do{true};
       for (auto const& r : range) {
         work_to_do &= (r.second.first < r.second.second);
       }
       if (!work_to_do) {
-        std::cout << "     No work to do.\n";
+        if (debug) {
+          std::cout << " = 0; # No work to do.\n";
+        }
         continue;
       }
 
       if (rule == "R") {
-        std::cout << "    Reject.\n";
+        if (debug) {
+          std::cout << " = 0; # Reject.\n";
+        }
         continue;
       }
       if (rule == "A") {
@@ -176,16 +190,21 @@ struct Workflows
           total *= r.second.second - r.second.first;
         }
         grand_total += total;
-        std::cout << "    Accept " << range << " = " << total << '\n';
+        if (debug) {
+          std::cout << " = " << total << '\n';
+        }
         continue;
       }
 
       auto it = workflows_.find(rule);
       assert(it != workflows_.end());
+      if (debug) { std::cout << '\n'; }
       it->second.append_ranges(work_list, range);
     }
 
-    std::cout << "  Grand total: " << grand_total << '\n';
+    if (debug) {
+      std::cout << "  Grand total: " << grand_total << '\n';
+    }
     return grand_total;
   }
 
@@ -220,7 +239,7 @@ auto main() -> int try {
   UInt total{0};
   while (std::getline(std::cin, line)) {
     Ratings const r = read_ratings(line);
-    std::cout << line << ":\n";
+    if (debug) { std::cout << line << ":\n"; }
     if (workflows.accept(r)) {
       for (auto [c, value] : r) {
         total += value;
